@@ -2,42 +2,36 @@
 
 using namespace flaXx;
 
-tr1::shared_ptr<FlaxxMain> instance = NULL;
+std::tr1::shared_ptr<FlaxxMain> FlaxxMain::inst;
 
-FlaxxMain::FlaxxMain()
+FlaxxMain::FlaxxMain():render(new Render())
 {}
 
-tr1::shared_ptr<FlaxxMain> FlaxxMain::instance()
+std::tr1::shared_ptr<FlaxxMain> FlaxxMain::instance()
 {
-	if (instance == NULL)
-		instance = new FlaxxMain();
+    if (!inst)
+        inst = std::tr1::shared_ptr<FlaxxMain>(new FlaxxMain());
 
-    return instance;
+    return inst;
 }
 
-FlaxxMain::main(int argc, char *argv[])
+int FlaxxMain::main(int argc, char *argv[])
 {
     // Kolla det som kommer från kommandoraden
-    cmdParser.parse(argc, argv)
+    cmdParser.parse(argc, argv);
 
-		// Hämta variabler och skapa rendering
-		if (!cmdParser.help())
-		{
-			if (cmdParser.inFileSpecified())
-				render = new Render(cmdParser.getInFile(),
-									cmdParser.getOutFile());
-			else
-				render = new Render(cmdParser.getOutFile());
-		}
+    // Hämta variabler och skapa rendering
+    if (!cmdParser.helpRequested())
+    {
+        // Skicka options till renderingen
+        render->setOptions(cmdParser.getOptions());
 
-    // TODO: Skicka options till renderingen
-    render->setOptions(cmdParser.getOptions());
+        // Rendera scenen
+        render->render();
 
-    // Rendera scenen
-    render->render();
-
-    // Spara scenen
-    render->saveToFile();
-
+        // Spara scenen
+        render->saveToFile();
+    }
+    else
+        cmdParser.printHelp();
 }
-

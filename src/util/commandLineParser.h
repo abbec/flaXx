@@ -1,26 +1,36 @@
 #ifndef COMMAND_LINE_PARSER_H
 #define COMMAND_LINE_PARSER_H
 
-namespace flaXx{
+#include <tr1/memory>
+
+#include "util/options.h"
+
+namespace flaXx {
 
 class CommandLineParser
 {
 
   public:
-    CommandLineParser(int _argc, char *_argv[]):argc(_argc),
-						argv(_argv){}
-    tr1::shared_ptr<Options> getOptions(){ return options; }
+    CommandLineParser(): help(false), options(new Options()) {}
 
-    
-		
+	std::tr1::shared_ptr<Options> getOptions() {
+        return options;
+    }
 
-  private:
+    void parse(int argc, char *argv[]);
+
+    bool helpRequested() { return help; }
+
+    void printHelp();
+
+
+private:
     int argc;
     char *argv[];
 
     bool help;
 
-    tr1::shared_ptr<Options> options;
+	std::tr1::shared_ptr<Options> options;
 
 
 
@@ -28,3 +38,4 @@ class CommandLineParser
 
 
 }
+#endif
