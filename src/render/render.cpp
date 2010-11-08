@@ -5,14 +5,14 @@ using namespace flaXx;
 
 void Render::render()
 {
-    std::cout << "Render..." << std::endl;
+	std::cout << "Render..." << std::endl;
 	
-	// Ordna ett SDL-fönster för att visa
-	// progress för renderingen.
+	/* Ordna ett SDL-fönster för att visa
+	 * progress för renderingen. */
 	SDL_Surface *screen;
 	SDL_Init(SDL_INIT_VIDEO);
-	// TODO: Ersätt 1024 och 768 med korrekta värden
-	// från optionsobjektet.
+
+	// Skapa SDL-yta
 	screen = SDL_SetVideoMode(options->getWidth(), 
 							  options->getHeight(),
 							  32, SDL_HWSURFACE);
@@ -21,29 +21,33 @@ void Render::render()
 	Uint32 color = (Uint32) SDL_MapRGB( screen->format, 255, 0, 0 );
 	Uint32 *pixmem32;
 
-	if(SDL_MUSTLOCK(screen)) 
-	{
-		if(SDL_LockSurface(screen) < 0) 
-			return;
-	}
-
-	std::cout << screen->pitch << ", " << screen->format->BytesPerPixel << std::endl;
-
 	for (int y = 0; y<options->getHeight(); y++)
 	{
 		for (int x = 0; x<options->getWidth(); x++)
 		{
-			//pixmem32 = ((Uint32*) screen->pixels) + (y*screen->pitch) + (x*4);
-			//*pixmem32 = color;
+			// Lås skärmen innan vi ritar upp pixeln
+			if(SDL_MUSTLOCK(screen)) 
+			{
+				if(SDL_LockSurface(screen) < 0) 
+					return;
+			}
 
-			//SDL_Flip(screen);
+			pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
+			*pixmem32 = color;
+
+
+			/* Lås upp skärmen och uppdatera pixeln på skärmen.
+			 * Det här är lite korkat... Skulle förmodligen kunna 
+			 * göras ganska mycket bättre.
+			 */
+			if(SDL_MUSTLOCK(screen)) 
+				SDL_UnlockSurface(screen);
+
+			SDL_UpdateRect(screen, x, y, 1, 1);
 
 		}
 
 	}
-
-	if(SDL_MUSTLOCK(screen)) 
-		SDL_UnlockSurface(screen);
 
 	// Avsluta SDL
 	SDL_Quit();

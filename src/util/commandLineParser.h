@@ -13,9 +13,7 @@ class CommandLineParser
   public:
     CommandLineParser(): help(false), options(new Options()) {}
 
-	std::tr1::shared_ptr<Options> getOptions() {
-        return options;
-    }
+	std::tr1::shared_ptr<Options> getOptions() { return options; }
 
     void parse(int argc, char *argv[]);
 
@@ -24,15 +22,11 @@ class CommandLineParser
     void printHelp();
 
 
-private:
-    int argc;
-    char *argv[];
+  private:
 
     bool help;
 
 	std::tr1::shared_ptr<Options> options;
-
-
 
 };
 

@@ -3,3 +3,6 @@
 /build/*
 *.*~
 *.kdev4
+/docs/Doxyfile~
+/docs/html/*
+docs/latex/*
