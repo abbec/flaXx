@@ -38,6 +38,16 @@ public:
 
 private:
 	std::tr1::shared_ptr<Options> options;
+	ImagePlane image;
+	Scene scene;
+
+	std::tr1::shared_ptr<Object> currentObject;
+	Vector3f currentNormal;
+	Vector3f currentDir;
+	Vector3f intersectionPoint;
+
+	MonteCarlo mc;
+
 };
 
 } // end namespace flaXx
