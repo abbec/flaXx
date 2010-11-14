@@ -162,5 +162,5 @@ double Render::radianceTransfer(Ray &shadowRay, Vector3f &lsNormal)
 	double geometry = ((currentNormal * psiVector) * (lsNormal * -psiVector))/rayLength;
 
 	// V(x,y) * G(x,y)
-	return = geometry * visible;
+	return geometry * visible;
 }
