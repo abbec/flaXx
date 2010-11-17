@@ -11,7 +11,7 @@ class Ray
 	Ray() : weight(1.0) {}
 
 	Ray(Vector3f s, Vector3f d, Vector3f c, float w) : start(s),
-													  direction(d), color(c), weight(w);
+													   direction(d), color(c), weight(w) {}
 
 	Vector3f getStart() { return start; }
 	void setStart(Vector3f s) { start = s; }

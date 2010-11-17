@@ -8,7 +8,8 @@ namespace flaXx{
 class Vector3f
 {
   public:
-	Vector3f() : x(0), y(0), z(0) {}
+	Vector3f() : x(0.0), y(0.0), z(0.0) {}
+	Vector3f(double d) : x(d), y(d), z(d) {}
 	Vector3f(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
 	
 	double squareNorm() const {return x*x + y*y + z*z;}
@@ -23,17 +24,19 @@ class Vector3f
 
 	Vector3f cross(const Vector3f &rhs) const {return Vector3f(y*rhs.z-z*rhs.y, x*rhs.z-z*rhs.x, x*rhs.y-y*rhs.x );}
 	Vector3f operator-(const Vector3f &rhs) const {return Vector3f(x-rhs.x, y-rhs.y, z-rhs.z);}
+	friend Vector3f operator-(const Vector3f &rhs) {return Vector3f(-rhs.x, -rhs.y, -rhs.z);}
 	Vector3f operator+(const Vector3f &rhs) const {return Vector3f(x+rhs.x, y+rhs.y, z+rhs.z);}
 
-	void normalize(); 
+	Vector3f& normalize(); 
 
 	bool operator== (const Vector3f &rhs) const { return (x==rhs.x && y==rhs.y && z==rhs.z); }
 	bool operator!= (const Vector3f &rhs) const { return !(*this == rhs); }
 	
 	bool operator== (const double d) const { return (x==d && y==d && z==d); }
-	bool operator!= (const double d) const { return !(*this == rhs); }
+	bool operator!= (const double d) const { return !(*this == d); }
 	
 	Vector3f& operator= (const Vector3f &rhs);
+	Vector3f& operator= (const double d);
 	Vector3f& operator+= (const Vector3f &rhs);
 
 	double getX(){return x;}

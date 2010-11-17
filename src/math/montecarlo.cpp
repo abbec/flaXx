@@ -1,4 +1,5 @@
 #include "math/montecarlo.h"
+#include <cstdlib>
 
 double flaXx::MonteCarlo::uniformPdf(double k, double a, double b)
 {

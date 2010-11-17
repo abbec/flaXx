@@ -5,6 +5,12 @@
 #include "SDL.h"
 
 #include "util/options.h"
+#include "scene/scene.h"
+#include "object/object.h"
+#include "math/vector3f.h"
+#include "math/montecarlo.h"
+#include "render/ray.h"
+#include "render/imageplane.h"
 
 namespace flaXx {
 
@@ -20,13 +26,15 @@ class Render
 public:
 
     // Konstruktorer
-    Render() {}
+    Render();
+
+	~Render() { SDL_Quit(); /* Avsluta SDL Korrekt */}
 
 	/** Metod som tar in en delad pekare till ett Options-objekt
 	 * som ska användas vid renderingen.
 	 * \param o Options-objektet som ska användas.
 	 */
-    void setOptions(std::tr1::shared_ptr<Options> o) { options = o; }
+    void setOptions(std::tr1::shared_ptr<Options>);
 
 	/** Själva renderingsmetoden med renderingsloopen. */
     void render();
@@ -37,16 +45,27 @@ public:
     void saveToFile();
 
 private:
+
+	Vector3f traceRay(Ray &);
+	Vector3f computeRadiance();
+	Vector3f directIllumination();
+	double radianceTransfer(Ray &, Vector3f);
+
 	std::tr1::shared_ptr<Options> options;
-	ImagePlane image;
+	std::tr1::shared_ptr<ImagePlane> image;
 	Scene scene;
 
+	// Olika variabler för att hålla reda på vilket objekt vi jobbar med
 	std::tr1::shared_ptr<Object> currentObject;
 	Vector3f currentNormal;
 	Vector3f currentDir;
 	Vector3f intersectionPoint;
 
+	// Slumptalsgenerator och PDF-hanterare
 	MonteCarlo mc;
+
+	// Bildbuffern
+	SDL_Surface *screen;
 
 };
 

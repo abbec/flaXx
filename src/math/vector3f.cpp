@@ -4,18 +4,25 @@
 namespace flaXx 
 {
 
-void Vector3f::normalize()
+Vector3f& Vector3f::normalize()
 {
 	// Kolla om den redan skulle råka 
 	// vara normaliserad
 	double sq = squareNorm();
 	
 	if (sq != 1.0)
-		*this/sqrt(squareNorm());
+	{
+		double sqr = sqrt(squareNorm());
+		x = x/sqr;
+		y = y/sqr;
+		z = z/sqr;
+	}
+
+	return *this;
 }
 
 
-Vector3f& Vector3f::operator= (Vector3f &rhs)
+Vector3f& Vector3f::operator= (const Vector3f &rhs)
 {
 	// Handle self assignment
 	if (this == &rhs)
@@ -25,10 +32,16 @@ Vector3f& Vector3f::operator= (Vector3f &rhs)
 	return *this;
 }
 
-Vector3f& Vector3f::operator+= (Vector3f &rhs)
+Vector3f& Vector3f::operator= (const double d)
+{
+	x = d; y = d; z = d;
+	return *this;
+}
+
+Vector3f& Vector3f::operator+= (const Vector3f &rhs)
 {
 	x += rhs.x; y += rhs.y; z += rhs.z;
-	return *this
+	return *this;
 }
 
 std::ostream& operator<<(std::ostream &os, const Vector3f &vec)

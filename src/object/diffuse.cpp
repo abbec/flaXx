@@ -1,7 +1,7 @@
 #include "object/diffuse.h"
 #include <cmath>
 
-flaXx::DiffuseMaterial::brdf(const Vector3f &point, const Vector3f &dir)
+double flaXx::DiffuseMaterial::brdf(const flaXx::Vector3f &point, const flaXx::Vector3f &dir)
 {
 	return reflectance/M_PI;
 }

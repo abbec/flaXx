@@ -1,6 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include "math/vector3f.h"
+
 namespace flaXx
 {
 
@@ -12,7 +14,7 @@ class Camera
 	// Klassiska get-metoder
 	Vector3f getDirection() { return direction; }
 	Vector3f getPosition() { return position; }
-	double focalDepth() { return focalDepth; }
+	double getFocalDepth() { return focalDepth; }
 
   private:
 	Vector3f direction;

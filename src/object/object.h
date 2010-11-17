@@ -3,8 +3,14 @@
 
 #include <tr1/memory>
 
+#include "object/material.h"
+
 namespace flaXx
 {
+
+class Ray;
+
+class Vector3f;
 
 class Object
 {
@@ -15,6 +21,8 @@ class Object
 
 	virtual Vector3f intersect(Ray &ray) = 0;
 	virtual Vector3f getNormal(Vector3f &point) = 0;
+
+	std::tr1::shared_ptr<Material> getMaterial() { return material; }
 
   private:
 	std::tr1::shared_ptr<Material> material;

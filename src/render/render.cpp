@@ -5,13 +5,11 @@
 
 using namespace flaXx;
 
-void Render::render()
+Render::Render() : scene(Scene())
 {
-	std::cout << "Render..." << std::endl;
-	
+
 	/* Ordna ett SDL-fönster för att visa
 	 * progress för renderingen. */
-	SDL_Surface *screen;
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// Skapa SDL-yta
@@ -19,13 +17,26 @@ void Render::render()
 							  options->getHeight(),
 							  32, SDL_HWSURFACE);
 
+}
+
+void Render::setOptions(std::tr1::shared_ptr<Options> o)
+{
+	options = o;
+
+	image = std::tr1::shared_ptr<ImagePlane>(new ImagePlane(30.0, o->getWidth(), o->getHeight()));
+}
+
+void Render::render()
+{
+	std::cout << "Render..." << std::endl;
+	
 	// Initiera slumptalsgeneratorn
 	srand((unsigned)time(0));
 
 	// Renderingsloopen ska vara här
 	Uint32 finalColor = 0; /*SDL_MapRGB( screen->format, 255, 0, 0 );*/
 	Uint32 *pixmem32;
-	double radiance;
+	Vector3f radiance;
 
 	for (int y = 0; y<options->getHeight(); y++)
 	{
@@ -40,10 +51,10 @@ void Render::render()
 
 			
 			// RENDERING
-			radiance = 0;
+			radiance = 0.0;
 
 			// Hämta pixelkoordinater
-			Vector3f pixelCoord = image.getPixelCoord(x, y);
+			Vector3f pixelCoord = image->getPixelCoord(x, y);
 
 			// Skjut en stråle genom pixeln
 			Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
@@ -52,11 +63,8 @@ void Render::render()
 			// Mappa färgerna till ett 32-bitars heltal
 			finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0), 
 									 floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0) );
-			
-			// Spara pixeln i blidplanet
-			image.setPixel(finalColor, x, y);
 
-			// Rita pixeln på skärmen
+			// Rita pixeln på skärmen/minnet
 			pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
 			*pixmem32 = finalColor;
 
@@ -73,15 +81,11 @@ void Render::render()
 		}
 
 	}
-
-	// Avsluta SDL
-	SDL_Quit();
 	
 }
 
 void Render::saveToFile()
 {
-	// image->saveToFile(options->getOutFile());
     std::cout << "Saving to file..." << std::endl;
 }
 
@@ -94,7 +98,7 @@ Vector3f Render::traceRay(Ray &r)
 	currentDir = scene.getCameraPosition()-intersectionPoint;
 
 	if (intersectionPoint != 0)
-		return computeRadiance(x, , normal);
+		return computeRadiance();
 	else
 		return Vector3f(0.0, 0.0, 0.0);
 }
@@ -137,7 +141,7 @@ Vector3f Render::directIllumination()
 
 		// Beräkna radiance
 		estimatedRadiance += light->getColor() * currentObject->getMaterial()->brdf(intersectionPoint, currentDir) * 
-			radianceTransfer(shadowRay, light->getNormal())/mc->uniformPdf(y, lightArea, 0);
+			radianceTransfer(shadowRay, light->getNormal())/mc.uniformPdf(x, lightArea, 0);
 	}
 
 	// Normalisera med antalet shadowrays
@@ -147,7 +151,7 @@ Vector3f Render::directIllumination()
 }
 
 
-double Render::radianceTransfer(Ray &shadowRay, Vector3f &lsNormal)
+double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal)
 {
 	// V(x,y) -- visibility function
 	unsigned short int visible = 0;
