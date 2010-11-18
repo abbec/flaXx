@@ -9,6 +9,6 @@ flaXx::ImagePlane::ImagePlane(double _fov, double width, double height) : fovx(_
 flaXx::Vector3f flaXx::ImagePlane::getPixelCoord(unsigned int x, unsigned int y)
 {
 	return flaXx::Vector3f((((double)(2*x) - width)/(double)width)*tan(fovx),
-					(((double)(2*y) - height)/(double)height)*tan(fovy), 1.0);
+					(-((double)(2*y) - height)/(double)height)*tan(fovy), 1.0);
 }
 

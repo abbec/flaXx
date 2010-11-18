@@ -54,6 +54,7 @@ private:
 	std::tr1::shared_ptr<Options> options;
 	std::tr1::shared_ptr<ImagePlane> image;
 	Scene scene;
+	bool complete;
 
 	// Olika variabler för att hålla reda på vilket objekt vi jobbar med
 	std::tr1::shared_ptr<Object> currentObject;

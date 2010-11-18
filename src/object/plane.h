@@ -14,7 +14,7 @@ class Plane : public Object
   public:
 	Plane (Vector3f, Vector3f, Vector3f, Vector3f, std::tr1::shared_ptr<Material>);
 
-	virtual Vector3f intersect(Ray &ray);
+	virtual Vector3f intersect(const Ray &ray);
 	virtual Vector3f getNormal(Vector3f &point);
 
   private:

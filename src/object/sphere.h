@@ -24,7 +24,7 @@ class Sphere : public Object
 
 	double getRadius(){ return radius; }
 
-	virtual Vector3f intersect(Ray &ray);
+	virtual Vector3f intersect(const Ray &ray);
 	virtual Vector3f getNormal(Vector3f &point);
 
   private:

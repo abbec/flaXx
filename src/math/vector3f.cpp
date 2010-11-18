@@ -4,23 +4,33 @@
 namespace flaXx 
 {
 
-Vector3f& Vector3f::normalize()
+Vector3f Vector3f::normalize()
 {
 	// Kolla om den redan skulle råka 
 	// vara normaliserad
 	double sq = squareNorm();
-	
-	if (sq != 1.0)
-	{
-		double sqr = sqrt(squareNorm());
-		x = x/sqr;
-		y = y/sqr;
-		z = z/sqr;
-	}
+	Vector3f ret = *this/sqrt(sq);
 
-	return *this;
+	return ret;
 }
 
+Vector3f Vector3f::colorNormalize()
+{
+	double max = -1.0;
+
+	max = x;
+
+	if (y > max)
+		max = y;
+
+	if (z > max)
+		max = z;
+
+	if (max > 1.0)
+		return *this/max;
+	else
+		return *this;
+}
 
 Vector3f& Vector3f::operator= (const Vector3f &rhs)
 {
@@ -46,7 +56,7 @@ Vector3f& Vector3f::operator+= (const Vector3f &rhs)
 
 std::ostream& operator<<(std::ostream &os, const Vector3f &vec)
 {
-	os << "(" << vec.x << "," << vec.y << "," << vec.z << ")"; 
+	os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")"; 
 	return os;
 }
 

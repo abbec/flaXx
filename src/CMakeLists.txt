@@ -13,6 +13,16 @@ scene/camera.cpp
 util/commandLineParser.cpp
 util/options.cpp)
 
+
+set(INTER_TEST_SRC
+tests/intersection_test.cpp
+object/sphere.cpp
+object/plane.cpp
+math/vector3f.cpp)
+
+
+add_executable(tests/i_test ${INTER_TEST_SRC})
+
 # Skapa exekerbar fil
 add_executable(flaXx ${FLAXX_SRC})
 

@@ -9,7 +9,8 @@ void CommandLineParser::parse(int argc, char *argv[])
 		help = true;
 	else
 	{
-		std::cout << argv[1] << std::endl;
+		// Sätt namn för utfilen
+		options->setOutFileName(argv[1]);
 
 	}
 }

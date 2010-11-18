@@ -19,7 +19,7 @@ class Object
 
 	virtual ~Object(){}
 
-	virtual Vector3f intersect(Ray &ray) = 0;
+	virtual Vector3f intersect(const Ray &ray) = 0;
 	virtual Vector3f getNormal(Vector3f &point) = 0;
 
 	std::tr1::shared_ptr<Material> getMaterial() { return material; }

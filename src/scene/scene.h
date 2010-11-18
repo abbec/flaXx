@@ -21,6 +21,21 @@ namespace flaXx
 class Scene
 {
   public:
+
+	class ShootReturn
+	{
+	  public:
+		ShootReturn(Vector3f p, std::tr1::shared_ptr<Object> o):
+			point(p), obj(o) {}
+
+		std::tr1::shared_ptr<Object> getObject() { return obj; }
+		Vector3f getPoint() { return point; }
+		
+	  private:
+		std::tr1::shared_ptr<Object> obj;
+		Vector3f point;
+	};
+
 	/** Default-konstruktor som skapar vår
 	 * exempelscen. */
 	Scene();
@@ -29,9 +44,7 @@ class Scene
 	 * och skjuter den in i scenen. Den går
 	 * sedan igenom alla objekt och kontrollerar
 	 * intersection. Returnerar sedan punkten. */
-	Vector3f shootRay(Ray &, std::tr1::shared_ptr<Object>);
-
-	Vector3f shootRay(Ray &);
+	ShootReturn shootRay(Ray &);
 
 	Vector3f getCameraPosition() { return camera.getPosition(); }
 
