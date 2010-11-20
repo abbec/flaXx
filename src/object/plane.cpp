@@ -43,8 +43,10 @@ Vector3f Plane::intersect(const Ray &ray)
 		invDen = 1 / (dot11 * dot22 - dot12 * dot12);
 		u = (dot22 * dot13 - dot12 * dot23) * invDen;
 		v = (dot11 * dot23 - dot12 * dot13) * invDen;
-
-		if (u >= 0 && v >= 0 && u+v <=1)
+		
+		// 1.0 + 1e-10 fixar ett precisions-problem
+		// med vissa processorer
+		if (u >= 0.0 && v >= 0.0 && u+v < 1.0 + 1e-10)
 			return point;
 	}
 	
@@ -69,7 +71,9 @@ Vector3f Plane::intersect(const Ray &ray)
 		u = (dot22 * dot13 - dot12 * dot23) * invDen;
 		v = (dot11 * dot23 - dot12 * dot13) * invDen;
 
-		if (u >= 0 && v >= 0 && u+v <=1)
+		// 1.0 + 1e-10 fixar ett precisions-problem
+		// med vissa processorer
+		if (u >= 0.0 && v >= 0.0 && u+v < 1 + 1e-10)
 			return point;
 
 	}
