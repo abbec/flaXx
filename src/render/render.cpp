@@ -6,7 +6,7 @@
 
 using namespace flaXx;
 
-Render::Render() : complete(false)
+Render::Render() : complete(false), raylength(0)
 {}
 
 void Render::setOptions(std::tr1::shared_ptr<Options> o)
@@ -70,6 +70,8 @@ void Render::render()
 
 			// Skjut en stråle genom pixeln
 			Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
+
+			std::cout << x << ", " << y << std::endl;
 
 			radiance = traceRay(r).colorNormalize();
 
@@ -148,8 +150,6 @@ void Render::saveToFile()
 				return;
 		}
 
-		std::cout << "Screen locked" << std::endl;
-
 		for (int y = 0; y<options->getHeight(); y++)
 		{
 			for (int x = 0; x<options->getWidth(); x++)
@@ -157,8 +157,7 @@ void Render::saveToFile()
 
 				pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
 
-				file.write(reinterpret_cast<char*>(*pixmem32), 32);
-				std::cout << "HÄR" << std::endl;
+				file.write(reinterpret_cast<char*>(pixmem32), 32);
 			}
 		}
 
@@ -179,41 +178,42 @@ Vector3f Render::traceRay(Ray &r)
 	Scene::ShootReturn rt = scene.shootRay(r);
 	intersectionPoint = rt.getPoint();
 	currentObject = rt.getObject();
+	Vector3f dir = (scene.getCameraPosition()-intersectionPoint).normalize();
 
 	if (intersectionPoint != 0.0)
-	{
-		currentNormal = currentObject->getNormal(intersectionPoint).normalize();
-		currentDir = (scene.getCameraPosition()-intersectionPoint).normalize();
-
-		return computeRadiance();
-	}
+		return computeRadiance(intersectionPoint, dir);
 	else
 		return Vector3f(0.0, 0.0, 0.0);
 }
 
-Vector3f Render::computeRadiance()
+Vector3f Render::computeRadiance(Vector3f &x, Vector3f &dir)
 {
-	Vector3f estimatedRadiance;
+	Vector3f estimatedRadiance;/* = currentObject->getMaterial()->getColor();*/
+	
+	//std::cout << "I computeRadiance" << std::endl;
 
-	estimatedRadiance += directIllumination();
-	//estimatedRadiance += indirectIllumination();
+	estimatedRadiance += directIllumination(x, dir);
+	estimatedRadiance += indirectIllumination(x, dir);
 
 	return estimatedRadiance;
 }
 
 
-Vector3f Render::directIllumination()
+Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 {
 	Vector3f estimatedRadiance, lightDirection, nLightDirection, radiance;
 	int nd = options->getNoShadowRays();
 
 	Ray shadowRay;
-	double x, z, xrand, zrand, pdf;
+	double Lx, Lz, xrand, zrand, pdf;
 
 	std::tr1::shared_ptr<Light> light = scene.getLight(0);
 
 	double lightArea = light->getWidth() * light->getHeight();
 	Vector3f lightPos = light->getPosition();
+
+	MonteCarlo mc;
+	mc.randomize();
 	
 	// Loopa över alla shadowrays
 	for (int i = 0; i < nd; i++)
@@ -221,19 +221,19 @@ Vector3f Render::directIllumination()
 		// Generera slumptal (Likformigt)
 		xrand =  mc.getUniformNumber()*light->getWidth();
 		zrand = mc.getUniformNumber()*light->getHeight();
-		x = (lightPos.getX()  - light->getWidth()/2) + xrand;
-		z = (lightPos.getZ() - light->getHeight()/2) + zrand;
+		Lx = (lightPos.getX()  - light->getWidth()/2) + xrand;
+		Lz = (lightPos.getZ() - light->getHeight()/2) + zrand;
 
 		// Sätt rätt värden på shadow-rayen
-		lightDirection = (Vector3f(x, lightPos.getY(), z) - intersectionPoint);
-		shadowRay.setStart(intersectionPoint+0.01*lightDirection);
+		lightDirection = (Vector3f(Lx, lightPos.getY(), Lz) - x);
+		shadowRay.setStart(x+0.01*lightDirection);
 		shadowRay.setDirection(lightDirection);
 
 		// Beräkna radiance
 		pdf = mc.uniformPdf(xrand, 0, lightArea);
 
-		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->getColor()))*currentObject->getMaterial()->brdf(intersectionPoint, currentDir)
-			* radianceTransfer(shadowRay, light->getNormal())/pdf;
+		estimatedRadiance += (light->getColor()).mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), lightDirection))
+			* radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
 	}
 
 	// Normalisera med antalet shadowrays
@@ -243,7 +243,76 @@ Vector3f Render::directIllumination()
 }
 
 
-double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal)
+Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
+{
+	Vector3f estimatedRadiance, rad;
+	//unsigned int nRays = options->getNoHemisphereRays();
+	Ray sampledDir(intersectionPoint, Vector3f(0.0), Vector3f(1.0), 1.0);
+
+	Vector3f y, psi, mpsi;
+
+	Object *obj = currentObject.get();
+	//std::cout << "Kolla: " << currentObject.get() << std::endl;
+
+	MonteCarlo mc;
+	mc.randomize();
+
+	//std::cout << "Här uppe " << std::endl;
+
+	if (!absorption())
+	{
+		//std::cout << "Här: efter if(!absorption())" << std::endl;
+		for (int i = 0; i < 4; i++)
+		{
+
+			//std::cout << i << std::endl;
+
+			double xDir = (mc.getUniformNumber()*2.0)-1.0;
+			double yDir = (mc.getUniformNumber()*2.0)-1.0;
+			double zDir = (mc.getUniformNumber()*2.0)-1.0;
+
+			sampledDir.setDirection((Vector3f(xDir, yDir, zDir)).normalize());
+			sampledDir.setStart(x + sampledDir.getDirection()*0.01);
+
+			psi = sampledDir.getDirection();
+			mpsi = -psi;
+
+			//std::cout << "Här nere" << std::endl;
+
+			Scene::ShootReturn rt = scene.shootRay(sampledDir);
+			y = rt.getPoint();
+
+			//std::cout << "Efter: " << y << std::endl;
+
+			// Se så att vi inte lämnar scenen
+			if (y != 0.0)
+			{
+
+				currentObject = rt.getObject();
+
+
+				//std::cout << "Current object: " << currentObject.get() << std::endl;
+
+				rad = computeRadiance(y, mpsi) * obj->getMaterial()->brdf(x, theta, obj->getNormal(x), mpsi)
+					*(psi*obj->getNormal(x))/mc.uniformPdf(xDir, 0 , 2.0*M_PI);
+
+				estimatedRadiance += rad;
+			}
+			else
+				return Vector3f(0.0);
+
+		}
+		
+		estimatedRadiance = estimatedRadiance/5.0;
+
+	}
+
+	return estimatedRadiance;
+
+}
+
+
+double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal, Vector3f &x)
 {
 	// V(x,y) -- visibility function
 	unsigned short int visible = 1;
@@ -254,25 +323,35 @@ double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal)
 
 	Vector3f p = scene.shootRay(shadowRay).getPoint();
 
-	//if (shadowRay.getStart().getY() < -19.0 && shadowRay.getStart().getX() < 1.0)
-	//std::cout << shadowRay.getStart() << ", " << shadowRay.getDirection() << std::endl;
-
-	//std::cout << "lightLength: " << rayLength << ", hitLength: " << (p - shadowRay.getStart()).squareNorm() << std::endl;
-
-	//std::cout << shadowRay.getStart() << ", " << shadowRay.getDirection() << std::endl;
 	if (p != 0.0 && (p - shadowRay.getStart()).squareNorm() < rayLength)
 	{
 		visible = 0;
 	}
 
 	// G(x,y) -- geometry term
-	double geometry = ((currentNormal * psiVector) * (lsNormal * -psiVector))/rayLength;
-
-	//std::cout << geometry << std::endl;
+	double geometry = ((currentObject->getNormal(x) * psiVector) * (lsNormal * -psiVector))/rayLength;
 
 	// V(x,y) * G(x,y)
 	if (geometry >= 0.0)
 		return geometry * visible;
 	else
 		return 0;
+}
+
+bool Render::absorption()
+{
+
+	MonteCarlo mc;
+	mc.randomize();
+
+	double alpha = mc.getUniformNumber()+0.1;
+
+	std::cout << alpha << ", " <<  currentObject->getMaterial()->getColor().sum()/3.0 <<  std::endl;
+
+	if (alpha >= currentObject->getMaterial()->getColor().sum()/3.0)
+		return true;
+
+	
+	return false;
+
 }

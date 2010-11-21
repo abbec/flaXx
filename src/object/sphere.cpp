@@ -23,5 +23,5 @@ flaXx::Vector3f flaXx::Sphere::intersect(const flaXx::Ray &ray)
 
 flaXx::Vector3f flaXx::Sphere::getNormal(flaXx::Vector3f &point)
 {
-	return point-origin;
+	return (point-origin).normalize();
 }

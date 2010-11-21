@@ -7,7 +7,7 @@ Plane::Plane (Vector3f _v1, Vector3f _v2, Vector3f _v3, Vector3f _v4,
 			  std::tr1::shared_ptr<Material> m) : Object(m), v1(_v1), v2(_v2), v3(_v3), v4(_v4)
 {
 	// Beräkna normal för planet
-	normal = (v2-v1).cross((v2-v3));
+	normal = ((v2-v1).cross((v2-v3))).normalize();
 }
 
 Vector3f Plane::intersect(const Ray &ray)

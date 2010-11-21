@@ -11,7 +11,7 @@ class Options
 {
 
   public:
-    Options() : width(320), height(240), noShadowRays(36) {}
+    Options() : width(640), height(480), noShadowRays(36), noHemisphereRays(5) {}
 
     void setWidth(int w) { width = w; }
     int getWidth() { return width; }
@@ -24,6 +24,8 @@ class Options
 
 	unsigned int getNoShadowRays() { return noShadowRays; }
 
+	unsigned int getNoHemisphereRays() { return noHemisphereRays; }
+
   private:
     unsigned int width;
     unsigned int height;
@@ -31,6 +33,7 @@ class Options
 	std::string outFileName;
 
 	unsigned int noShadowRays;
+	unsigned int noHemisphereRays;
 
 };
 

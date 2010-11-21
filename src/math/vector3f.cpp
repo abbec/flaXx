@@ -4,7 +4,7 @@
 namespace flaXx 
 {
 
-Vector3f Vector3f::normalize()
+Vector3f Vector3f::normalize() const
 {
 	// Kolla om den redan skulle råka 
 	// vara normaliserad
@@ -14,7 +14,7 @@ Vector3f Vector3f::normalize()
 	return ret;
 }
 
-Vector3f Vector3f::colorNormalize()
+Vector3f Vector3f::colorNormalize() const
 {
 	double max = -1.0;
 

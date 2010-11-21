@@ -11,7 +11,7 @@ class Material
   public:
 	Material (Vector3f c) : color(c) {}
 
-	virtual double brdf(const Vector3f &point, const Vector3f &dir) = 0;
+	virtual Vector3f brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir) = 0;
 
 	Vector3f getColor() { return color; }
 

@@ -47,9 +47,11 @@ public:
 private:
 
 	Vector3f traceRay(Ray &);
-	Vector3f computeRadiance();
-	Vector3f directIllumination();
-	double radianceTransfer(Ray &, Vector3f);
+	Vector3f computeRadiance(Vector3f &, Vector3f &);
+	Vector3f directIllumination(Vector3f &, Vector3f &);
+	Vector3f indirectIllumination(Vector3f &, Vector3f &);
+	double radianceTransfer(Ray &, Vector3f, Vector3f &);
+	bool absorption();
 
 	std::tr1::shared_ptr<Options> options;
 	std::tr1::shared_ptr<ImagePlane> image;
@@ -62,8 +64,7 @@ private:
 	Vector3f currentDir;
 	Vector3f intersectionPoint;
 
-	// Slumptalsgenerator och PDF-hanterare
-	MonteCarlo mc;
+	unsigned int raylength;
 
 	// Bildbuffern
 	SDL_Surface *screen;

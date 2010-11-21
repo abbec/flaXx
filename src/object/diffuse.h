@@ -17,7 +17,7 @@ class DiffuseMaterial : public Material
 	double getReflectance() { return reflectance; }
 	void setReflectance(double r) { reflectance = r; }
 	
-	virtual double brdf(const Vector3f &point, const Vector3f &dir);
+	virtual Vector3f brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir);
 
   private:
 	double reflectance;

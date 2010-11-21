@@ -1,5 +1,7 @@
 #include "scene/scene.h"
 #include <limits>
+#include "object/cooktorrance.h"
+#include "object/blinnphong.h"
 
 flaXx::Scene::Scene() : 
 camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
@@ -53,7 +55,7 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::cout << ".";
 
 	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new DiffuseMaterial(Vector3f(1.0, 1.0, 0.0), 0.6));
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0),1000*Vector3f(1.0, 1.0, 1.0), 0.5, 0.5, 400));
 	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.8));
 	
 	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -2.0, 20.0), 3.0, sphere_mtrl)));
