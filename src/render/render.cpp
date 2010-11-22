@@ -71,7 +71,7 @@ void Render::render()
 			// Skjut en stråle genom pixeln
 			Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
 
-			std::cout << x << ", " << y << std::endl;
+			//std::cout << x << ", " << y << std::endl;
 
 			radiance = traceRay(r).colorNormalize();
 
@@ -246,10 +246,12 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 {
 	Vector3f estimatedRadiance, rad;
-	//unsigned int nRays = options->getNoHemisphereRays();
-	Ray sampledDir(intersectionPoint, Vector3f(0.0), Vector3f(1.0), 1.0);
+	unsigned int nRays = options->getNoHemisphereRays();
+	Ray sampledDir(intersectionPoint, Vector3f(0.0), Vector3f(1.0), 1.0/nRays);
 
 	Vector3f y, psi, mpsi;
+
+	float random, thetaN, phi, probability;
 
 	Object *obj = currentObject.get();
 	//std::cout << "Kolla: " << currentObject.get() << std::endl;
@@ -259,17 +261,32 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 	//std::cout << "Här uppe " << std::endl;
 
-	if (!absorption())
+	double alpha = absorption();
+	Vector3f Nx = obj->getNormal(x);
+	double reflectance = (currentObject->getMaterial()->brdf(x, theta, Nx, Nx+theta*(Nx)).sum()/3.0);
+
+	if (alpha < reflectance)
 	{
+		//raylength++;
+		//std::cout << raylength << std::endl;
 		//std::cout << "Här: efter if(!absorption())" << std::endl;
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < nRays; i++)
 		{
 
-			//std::cout << i << std::endl;
+			float r1 = rand() / ((float)RAND_MAX + 1);
+			phi = r1 * M_PI * 2.0;
+			float r2 = rand() / ((float)RAND_MAX + 1);
+			theta = acos(sqrt(r2));
+			// theta = random * M_PI;
+			float c = sqrt(1 - r2);
+			probability = cos(thetaN) / M_PI;
+			float xDir = cos(phi) * c;
+			float yDir = sin(phi) * c;
+			float zDir = sqrt(r2);
 
-			double xDir = (mc.getUniformNumber()*2.0)-1.0;
-			double yDir = (mc.getUniformNumber()*2.0)-1.0;
-			double zDir = (mc.getUniformNumber()*2.0)-1.0;
+			//double xDir = (mc.getUniformNumber()*2.0)-1.0;
+			//double yDir = (mc.getUniformNumber()*2.0)-1.0;
+			//double zDir = (mc.getUniformNumber()*2.0)-1.0;
 
 			sampledDir.setDirection((Vector3f(xDir, yDir, zDir)).normalize());
 			sampledDir.setStart(x + sampledDir.getDirection()*0.01);
@@ -277,7 +294,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			psi = sampledDir.getDirection();
 			mpsi = -psi;
 
-			//std::cout << "Här nere" << std::endl;
+			//std::cout << "Här nere" << i << std::endl;
 
 			Scene::ShootReturn rt = scene.shootRay(sampledDir);
 			y = rt.getPoint();
@@ -289,12 +306,12 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			{
 
 				currentObject = rt.getObject();
-
+				sampledDir.setColor(currentObject->getMaterial()->getColor());
 
 				//std::cout << "Current object: " << currentObject.get() << std::endl;
 
-				rad = computeRadiance(y, mpsi) * obj->getMaterial()->brdf(x, theta, obj->getNormal(x), mpsi)
-					*(psi*obj->getNormal(x))/mc.uniformPdf(xDir, 0 , 2.0*M_PI);
+				rad = (computeRadiance(y, mpsi) * obj->getMaterial()->brdf(x, theta, Nx, psi)
+					   *(Nx*psi))/mc.uniformPdf(xDir, 0 , 2.0*M_PI);
 
 				estimatedRadiance += rad;
 			}
@@ -303,11 +320,13 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 		}
 		
-		estimatedRadiance = estimatedRadiance/5.0;
+		estimatedRadiance = estimatedRadiance/nRays;
 
 	}
 
-	return estimatedRadiance;
+	std::cout << estimatedRadiance/reflectance << std::endl;
+
+	return estimatedRadiance/reflectance;
 
 }
 
@@ -344,14 +363,5 @@ bool Render::absorption()
 	MonteCarlo mc;
 	mc.randomize();
 
-	double alpha = mc.getUniformNumber()+0.1;
-
-	std::cout << alpha << ", " <<  currentObject->getMaterial()->getColor().sum()/3.0 <<  std::endl;
-
-	if (alpha >= currentObject->getMaterial()->getColor().sum()/3.0)
-		return true;
-
-	
-	return false;
-
+	return mc.random();
 }
