@@ -13,7 +13,6 @@ Plane::Plane (Vector3f _v1, Vector3f _v2, Vector3f _v3, Vector3f _v4,
 Vector3f Plane::intersect(const Ray &ray)
 {
 	// Gör för båda trianglarna i planet
-	// TODO: Förberäkna u och v: http://www.devmaster.net/wiki/Ray-triangle_intersection
 
 	// barycentric coordinates
 	Vector3f nnormal = normal.normalize();

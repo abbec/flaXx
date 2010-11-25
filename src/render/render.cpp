@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 #include "render/render.h"
+#include <png.h>
 
 using namespace flaXx;
 
@@ -31,7 +32,9 @@ void Render::render()
 	// Skapa SDL-yta
 	screen = SDL_SetVideoMode(options->getWidth(), 
 							  options->getHeight(),
-							  32, SDL_HWSURFACE);
+							  32, SDL_SWSURFACE);
+
+	buffer = createBufferSurface();
 
 	SDL_WM_SetCaption("flaXx Monte-Carlo ray tracer", "flaXx"); 
 	
@@ -77,12 +80,19 @@ void Render::render()
 
 			// Mappa färgerna till ett 32-bitars heltal
 			finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0), 
-									 floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0) );
+									  floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0));
 
-			// Rita pixeln på skärmen/minnet
+			// Rita pixeln på skärmen
 			pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
 			*pixmem32 = finalColor;
 
+
+			// Rita pixeln i minnet
+			finalColor = SDL_MapRGBA( buffer->format, floor(radiance.getX()*255.0), 
+									  floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0), SDL_ALPHA_OPAQUE );
+
+			pixmem32 = (Uint32*) (buffer->pixels) + (y*buffer->pitch)/4 + x;
+			*pixmem32 = finalColor;
 
 			/* Lås upp skärmen och uppdatera pixeln på skärmen.
 			 * Det här är lite korkat... Skulle förmodligen kunna 
@@ -129,43 +139,119 @@ void Render::render()
 	
 }
 
+
+static int png_colortype_from_surface(SDL_Surface *surface)
+{
+	int colortype = PNG_COLOR_MASK_COLOR; /* grayscale not supported */
+
+	if (surface->format->palette)
+		colortype |= PNG_COLOR_MASK_PALETTE;
+	else if (surface->format->Amask)	
+		colortype |= PNG_COLOR_MASK_ALPHA;
+
+	printf("Amask: %d\n", surface->format->Amask);
+		
+	return colortype;
+}
+
 void Render::saveToFile()
 {
 
 	if (complete)
 	{
-		std::cout << "Saving to file: " << options->getOutFileName() << std::endl;
 
-		// Skriv till fil
-		Uint32 *pixmem32;
+		FILE *fp;
+		png_byte bit_depth = 8;
+		png_bytep *row_pointers;
+		png_structp png_ptr;
+		int i, colortype;
+		png_infop info_ptr;
+		const char* filename = (options->getOutFileName()+".png").c_str();
 
-		std::ofstream file (options->getOutFileName().c_str(), std::ios::out|std::ios::binary);
-
-
-	
 		// Lås skärmen innan vi ritar upp pixeln
-		if(SDL_MUSTLOCK(screen)) 
+		if(SDL_MUSTLOCK(buffer)) 
+		 {
+		 	if(SDL_LockSurface(buffer) < 0) 
+		 		return;
+		 }
+
+
+		std::cout << "Saving to file: " << options->getOutFileName()+".png" << std::endl;
+
+		/*Uint32 *pixmem32;
+
+		png::image< png::rgba_pixel<Uint8> > image(options->getWidth(), options->getHeight());
+		 for (size_t y = 0; y < image.get_height(); ++y)
+		 {
+			 for (size_t x = 0; x < image.get_width(); ++x)
+			 {
+				 pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
+
+				 image.set_pixel(x, y, *pixmem32);
+				 // non-checking equivalent of image.set_pixel(x, y, ...);
+			 }
+		 }
+		 image.write("rgb.png");*/
+		
+		/* Opening output file */
+		fp = fopen(filename, "wb");
+		if (fp == NULL) 
 		{
-			if(SDL_LockSurface(screen) < 0) 
-				return;
+			printf("fopen error");
 		}
 
-		for (int y = 0; y<options->getHeight(); y++)
+		/* Initializing png structures and callbacks */
+		png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 
+										  NULL, NULL, 
+										  NULL);
+		if (png_ptr == NULL) 
 		{
-			for (int x = 0; x<options->getWidth(); x++)
-			{
-
-				pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
-
-				file.write(reinterpret_cast<char*>(pixmem32), 32);
-			}
+			printf("png_create_write_struct error!\n");
 		}
 
-		if(SDL_MUSTLOCK(screen)) 
-			SDL_UnlockSurface(screen);
+		info_ptr = png_create_info_struct(png_ptr);
+		if (info_ptr == NULL) 
+		{
+			png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+			printf("png_create_info_struct error!\n");
+		}
+
+		if (setjmp(png_jmpbuf(png_ptr))) 
+		{
+			png_destroy_write_struct(&png_ptr, &info_ptr);
+			fclose(fp);
+		}
+
+		png_init_io(png_ptr, fp);
+
+		colortype = png_colortype_from_surface(buffer);
+
+		png_set_IHDR(png_ptr, info_ptr, buffer->w, buffer->h, 8, 
+				 colortype,	
+				 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, 
+				 PNG_FILTER_TYPE_DEFAULT);
+
+		/* Writing the image */
+		png_write_info(png_ptr, info_ptr);
+		png_set_packing(png_ptr);
+
+		row_pointers = (png_bytep*) malloc(sizeof(png_bytep)*buffer->h);
+		for (i = 0; i < buffer->h; i++)
+			row_pointers[i] = (png_bytep)(Uint8 *)buffer->pixels + i*buffer->pitch;
+
+		png_write_image(png_ptr, row_pointers);
+		png_write_end(png_ptr, info_ptr);
+
+		/* Cleaning out... */
+		free(row_pointers);
+		png_destroy_write_struct(&png_ptr, &info_ptr);
+		fclose(fp);
 
 
-		file.close();
+
+		if(SDL_MUSTLOCK(buffer)) 
+			SDL_UnlockSurface(buffer);
+
 	}
 	else
 		std::cout << "Render aborted. File not saved." << std::endl;
@@ -176,12 +262,12 @@ Vector3f Render::traceRay(Ray &r)
 {
 	// Hitta den närmaste skärningspunkten med scenen
 	Scene::ShootReturn rt = scene.shootRay(r);
-	intersectionPoint = rt.getPoint();
+	Vector3f x = rt.getPoint();
 	currentObject = rt.getObject();
-	Vector3f dir = (scene.getCameraPosition()-intersectionPoint).normalize();
+	Vector3f dir = (x - scene.getCameraPosition()).normalize();
 
-	if (intersectionPoint != 0.0)
-		return computeRadiance(intersectionPoint, dir);
+	if (x != 0.0)
+		return computeRadiance(x, dir);
 	else
 		return Vector3f(0.0, 0.0, 0.0);
 }
@@ -245,30 +331,22 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 
 Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 {
-	Vector3f estimatedRadiance, rad;
+	Vector3f estimatedRadiance(0.0), rad;
 	unsigned int nRays = options->getNoHemisphereRays();
-	Ray sampledDir(intersectionPoint, Vector3f(0.0), Vector3f(1.0), 1.0/nRays);
 
 	Vector3f y, psi, mpsi;
 
 	float random, thetaN, phi, probability;
 
-	Object *obj = currentObject.get();
-	//std::cout << "Kolla: " << currentObject.get() << std::endl;
-
-	MonteCarlo mc;
-	mc.randomize();
-
-	//std::cout << "Här uppe " << std::endl;
-
+	std::tr1::shared_ptr<Object> obj = currentObject;
 	double alpha = absorption();
 	Vector3f Nx = obj->getNormal(x);
-	double reflectance = (currentObject->getMaterial()->brdf(x, theta, Nx, Nx+theta*(Nx)).sum()/3.0);
+	double reflectance = (currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getDiffuse())*0.5;
 
 	if (alpha < reflectance)
 	{
 		//raylength++;
-		//std::cout << raylength << std::endl;
+		//std::cout << "  Inne" << std::endl;
 		//std::cout << "Här: efter if(!absorption())" << std::endl;
 		for (int i = 0; i < nRays; i++)
 		{
@@ -276,7 +354,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			float r1 = rand() / ((float)RAND_MAX + 1);
 			phi = r1 * M_PI * 2.0;
 			float r2 = rand() / ((float)RAND_MAX + 1);
-			theta = acos(sqrt(r2));
+			thetaN = acos(sqrt(r2));
 			// theta = random * M_PI;
 			float c = sqrt(1 - r2);
 			probability = cos(thetaN) / M_PI;
@@ -288,11 +366,14 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			//double yDir = (mc.getUniformNumber()*2.0)-1.0;
 			//double zDir = (mc.getUniformNumber()*2.0)-1.0;
 
-			sampledDir.setDirection((Vector3f(xDir, yDir, zDir)).normalize());
-			sampledDir.setStart(x + sampledDir.getDirection()*0.01);
+			psi = (Vector3f(xDir, yDir, zDir) + Nx).normalize();
 
-			psi = sampledDir.getDirection();
+			//std::cout << x << ", " << psi << std::endl;
+
+			Ray sampledDir(x + psi*0.01, psi, Vector3f(1.0), 1.0/nRays);
+
 			mpsi = -psi;
+
 
 			//std::cout << "Här nere" << i << std::endl;
 
@@ -306,27 +387,28 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			{
 
 				currentObject = rt.getObject();
-				sampledDir.setColor(currentObject->getMaterial()->getColor());
+				//sampledDir.setColor(currentObject->getMaterial()->getColor());
 
-				//std::cout << "Current object: " << currentObject.get() << std::endl;
+				//std::cout <<  obj->getMaterial()->brdf(x, theta, Nx, psi) << std::endl;
 
 				rad = (computeRadiance(y, mpsi) * obj->getMaterial()->brdf(x, theta, Nx, psi)
-					   *(Nx*psi))/mc.uniformPdf(xDir, 0 , 2.0*M_PI);
+					   *(Nx*psi))/(1/2.0*M_PI);
+
+				//std::cout << rad << std::endl;
 
 				estimatedRadiance += rad;
 			}
-			else
-				return Vector3f(0.0);
 
 		}
 		
-		estimatedRadiance = estimatedRadiance/nRays;
+		estimatedRadiance = estimatedRadiance/double(nRays);
 
 	}
 
-	std::cout << estimatedRadiance/reflectance << std::endl;
+	//if (estimatedRadiance != 0.0)
+	//std::cout << "Stopping recursion..." << std::endl;
 
-	return estimatedRadiance/reflectance;
+	return estimatedRadiance/(reflectance > 0.0 ? reflectance : 1.0);
 
 }
 
@@ -357,11 +439,35 @@ double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal, Vector3f &x)
 		return 0;
 }
 
-bool Render::absorption()
+double Render::absorption()
 {
-
-	MonteCarlo mc;
-	mc.randomize();
-
-	return mc.random();
+	return double(rand())/(double(RAND_MAX)+1);
 }
+
+SDL_Surface *Render::createBufferSurface()
+{
+/* Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
+       as expected by OpenGL for textures */
+    Uint32 rmask, gmask, bmask, amask;
+	SDL_Surface *ret;
+
+    /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+       on the endianness (byte order) of the machine */
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+
+    ret = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, 32,
+								rmask, gmask, bmask, amask);
+
+	return ret;
+}
+

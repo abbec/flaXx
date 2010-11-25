@@ -10,8 +10,8 @@ namespace flaXx
 class CookTorrance : public Material
 {
   public:
-	CookTorrance(Vector3f c, Vector3f sc, double _kd, double _ks, double r, double _eta) : 
-		Material(c), specColor(sc), kd(_kd), ks(_ks), roughness(r), eta(_eta) {}
+	CookTorrance(Vector3f c, double kd, double ks, Vector3f sc, double rough, double _eta) : 
+		Material(c, kd, ks), specColor(sc), roughness(rough), eta(_eta) {}
 
 
 	virtual Vector3f brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir);

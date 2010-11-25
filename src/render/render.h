@@ -28,7 +28,7 @@ public:
     // Konstruktorer
     Render();
 
-	~Render() { SDL_Quit(); /* Avsluta SDL Korrekt */}
+	~Render() { SDL_FreeSurface(buffer); SDL_Quit(); /* Avsluta SDL Korrekt */}
 
 	/** Metod som tar in en delad pekare till ett Options-objekt
 	 * som ska användas vid renderingen.
@@ -51,7 +51,9 @@ private:
 	Vector3f directIllumination(Vector3f &, Vector3f &);
 	Vector3f indirectIllumination(Vector3f &, Vector3f &);
 	double radianceTransfer(Ray &, Vector3f, Vector3f &);
-	bool absorption();
+	double absorption();
+
+	SDL_Surface *createBufferSurface();
 
 	std::tr1::shared_ptr<Options> options;
 	std::tr1::shared_ptr<ImagePlane> image;
@@ -60,14 +62,12 @@ private:
 
 	// Olika variabler för att hålla reda på vilket objekt vi jobbar med
 	std::tr1::shared_ptr<Object> currentObject;
-	Vector3f currentNormal;
-	Vector3f currentDir;
-	Vector3f intersectionPoint;
 
 	unsigned int raylength;
 
 	// Bildbuffern
 	SDL_Surface *screen;
+	SDL_Surface *buffer;
 
 };
 

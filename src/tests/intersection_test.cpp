@@ -23,29 +23,16 @@ int main()
 	Plane p(downLeft, downRight, upRight, upLeft, std::tr1::shared_ptr<Material>());
 
 	// En ray som skär
-	Ray is(Vector3f(0.0, 0.0, 10.0), Vector3f(0.0, 1.0, 0.0), Vector3f(1.0), 1.0);
+	Ray is(Vector3f(-13.8662, 1.5489, 1.0), Vector3f(-0.00151623, -0.926239, -0.376933), Vector3f(1.0), 1.0);
+	is.setStart(is.getStart() + is.getDirection()*0.01);
 
 	// En som inte gör det
 	//Ray nis(Vector3f(0.0, 0.0, 14.1), Vector3f(0.0, 0.0, 1.0), Vector3f(1.0), 1.0);
 
-	int correct = 0;
-
-	unsigned int num_tests = 6;
-	for (int i = 0; i < 6; i++)
-	{
-
-		is.setStart(Vector3f(-1.0 + (1.0/(double)num_tests)*i, 0.0, 10.0));
-
-		Vector3f point = s.intersect(is);
-
-		if (point != Vector3f(0.0))
-		{
-			std::cout << "Intersecting the sphere: " << point << ": CORRECT" << std::endl;
-			correct++;
-		}
-		else
-			std::cerr << "Not intersecting: WRONG!" << std::endl;
-	}
+	if (p.intersect(is) != 0.0)
+		std::cout << "FELFELFEL" << std::endl;
+	else
+		std::cout << "Correctomundo" << std::endl;
 
 
 	return 0;

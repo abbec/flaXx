@@ -10,5 +10,5 @@ Vector3f BlinnPhong::brdf(const Vector3f &point, const Vector3f &dir, const Vect
 	Vector3f thetaN = dir.normalize();
 	Vector3f Hn = (Ln + thetaN).normalize();
 
-	return ((1000 * ks * (pow(Nn*Hn, roughness)/(Nn*Ln))) * specColor) + (kd * getColor());
+	return (((specIntensity * getSpecular() * (pow(Nn*Hn, roughness)/(Nn*Ln))) * specColor) + (getDiffuse() * getColor())).colorNormalize();
 }

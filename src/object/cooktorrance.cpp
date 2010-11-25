@@ -37,5 +37,5 @@ Vector3f CookTorrance::brdf(const Vector3f &point, const Vector3f &dir, const Ve
 	double rs = (n1-n2)/(n1+n2);
 	double F = (fabs(rp) * fabs(rp) + fabs(rs)*fabs(rs))/2;
 
-	return (getColor()*kd) + (((0.5/M_PI) * (D*G)/((Nn*Ln)*(Nn*thetaN)))*specColor);
+	return (getColor()*getDiffuse()) + getSpecular()*(((0.5/M_PI) * (D*G)/((Nn*Ln)*(Nn*thetaN)))*specColor);
 }

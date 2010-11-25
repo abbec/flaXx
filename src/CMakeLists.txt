@@ -37,4 +37,4 @@ add_executable(tests/random_test ${RANDOM_TEST_SRC})
 add_executable(flaXx ${FLAXX_SRC})
 
 # Länka med SDL
-TARGET_LINK_LIBRARIES(flaXx ${SDL_LIBRARY}) 
+TARGET_LINK_LIBRARIES(flaXx ${SDL_LIBRARY} ${PNG_LIBRARY}) 

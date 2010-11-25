@@ -11,7 +11,7 @@ class Options
 {
 
   public:
-    Options() : width(640), height(480), noShadowRays(36), noHemisphereRays(5) {}
+    Options() : width(320), height(240), noShadowRays(5), noHemisphereRays(5) {}
 
     void setWidth(int w) { width = w; }
     int getWidth() { return width; }

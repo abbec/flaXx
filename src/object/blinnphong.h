@@ -10,14 +10,14 @@ namespace flaXx
 class BlinnPhong : public Material
 {
   public:
-	BlinnPhong(Vector3f c, Vector3f sc, double _kd, double _ks, double r) : 
-		Material(c), specColor(sc), kd(_kd), ks(_ks), roughness(r) {}
+	BlinnPhong(Vector3f c, Vector3f sc, double kd, double ks, double r, double i) : 
+		Material(c, kd, ks), specColor(sc), roughness(r), specIntensity(i) {}
 
 
 	virtual Vector3f brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir);
 
   private:
-	double kd, ks, roughness;
+	double roughness, specIntensity;
 	Vector3f specColor;
 
 

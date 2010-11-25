@@ -11,16 +11,10 @@ class DiffuseMaterial : public Material
 {
   public:
 
-	DiffuseMaterial() : Material(Vector3f(0.5, 0.5, 0.5)), reflectance(0.5) {}
-	DiffuseMaterial(Vector3f c, double r) : Material(c), reflectance(r) {}
-	
-	double getReflectance() { return reflectance; }
-	void setReflectance(double r) { reflectance = r; }
+	DiffuseMaterial() : Material(Vector3f(0.5, 0.5, 0.5), 0.5, 0.0) {}
+	DiffuseMaterial(Vector3f c, double kd) : Material(c, kd, 0.0) {}
 	
 	virtual Vector3f brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir);
-
-  private:
-	double reflectance;
 
 };
 

@@ -35,7 +35,7 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::cout << ".";
 
 	// Material för väggen
-	std::tr1::shared_ptr<Material> wall_mtrl(new DiffuseMaterial(Vector3f(0.0, 0.0, 1.0), 0.4));
+	std::tr1::shared_ptr<Material> wall_mtrl(new DiffuseMaterial(Vector3f(0.8, 0.8, 0.8), 0.2));
 
 	// Vänstra väggen
 	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
@@ -55,10 +55,10 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::cout << ".";
 
 	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0),1000*Vector3f(1.0, 1.0, 1.0), 0.5, 0.5, 400));
-	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.8));
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0), 1000*100000*Vector3f(1.0, 1.0, 1.0), 0.8, 0.1, 40000, 10));
+	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.2));
 	
-	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -2.0, 20.0), 3.0, sphere_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -5.0, 20.0), 3.0, sphere_mtrl)));
 	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(1.0, 2.0, 30.0), 2.5, sphere_mtrl2)));
 
 	std::cout << " Done!" << std::endl;
