@@ -39,7 +39,7 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 
 	// Vänstra väggen
 	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
-	
+
 	// Bakre väggen
 	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl)));
 
@@ -57,7 +57,7 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	// Två sfärer
 	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.3, 0.7, 400, 1000));
 	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.2));
-	
+
 	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -5.0, 30.0), 3.0, sphere_mtrl)));
 	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(1.0, 2.0, 30.0), 2.5, sphere_mtrl2)));
 
@@ -67,13 +67,13 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 
 flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 {
-	
+
 	// Gå igenom alla objekt och undersök
 	// kollision.
 	Vector3f intersectionPoint, nearestPoint;
 	std::tr1::shared_ptr<Object> currObj;
 	double distance, shortestDistance = std::numeric_limits<double>::max();
-	
+
 	for (std::list< std::tr1::shared_ptr<Object> >::iterator it = objects.begin(); it != objects.end(); it++)
 	{
 		intersectionPoint = (*it)->intersect(r);
@@ -82,14 +82,14 @@ flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 		{
 			distance = (intersectionPoint - r.getStart()).squareNorm();
 
-			// BSP-träd eller nåt för detta kanske? :) 
+			// BSP-träd eller nåt för detta kanske? :)
 			if (distance < shortestDistance)
 			{
 				shortestDistance = distance;
 				nearestPoint = intersectionPoint;
 				currObj = *it;
 			}
-		}	
+		}
 	}
 
 	return ShootReturn(nearestPoint, currObj);

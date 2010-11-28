@@ -244,7 +244,7 @@ Vector3f Render::computeRadiance(Vector3f &x, Vector3f &dir)
 
 	// Estimated radiance is the sum of direct and indirect components
 	estimatedRadiance += directIllumination(x, dir);
-	estimatedRadiance += indirectIllumination(x, dir);
+	// estimatedRadiance += indirectIllumination(x, dir);
 
 	return estimatedRadiance;
 }
@@ -265,10 +265,11 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 
 	// Fetch a light. TODO: Move inside loop and sample
 	// among multiple lightsources
-	std::tr1::shared_ptr<Light> light = scene.getLight(0);
+	std::tr1::shared_ptr<Light> light;
 
-	double lightArea = light->getWidth() * light->getHeight();
-	Vector3f lightPos = light->getPosition();
+	double lightArea;
+	int randLight;
+	Vector3f lightPos;
 
 	MonteCarlo mc;
 	mc.randomize();
@@ -276,6 +277,13 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	// Loop for all shadowrays
 	for (int i = 0; i < nd; i++)
 	{
+		// Sample a lightsource uniformly
+		randLight = floor(double(rand())/(double(RAND_MAX)+0.99)*scene.getNumLights());
+		light = scene.getLight(randLight);
+
+		lightArea = light->getWidth() * light->getHeight();
+		lightPos = light->getPosition();
+
 		// Generate point on lightsource (Uniform)
 		xrand =  mc.getUniformNumber()*light->getWidth();
 		zrand = mc.getUniformNumber()*light->getHeight();

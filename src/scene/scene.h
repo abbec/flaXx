@@ -30,7 +30,7 @@ class Scene
 
 		std::tr1::shared_ptr<Object> getObject() { return obj; }
 		Vector3f getPoint() { return point; }
-		
+
 	  private:
 		std::tr1::shared_ptr<Object> obj;
 		Vector3f point;
@@ -49,6 +49,7 @@ class Scene
 	Vector3f getCameraPosition() { return camera.getPosition(); }
 
 	std::tr1::shared_ptr<Light> getLight(unsigned int lightNum) { return lights.at(lightNum);}
+	int getNumLights() { return lights.size(); }
 
   private:
 
