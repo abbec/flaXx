@@ -2,6 +2,7 @@
 #define MONTECARLO_H
 
 #include <ctime>
+#include "math/vector3f.h"
 
 namespace flaXx
 {
@@ -31,6 +32,10 @@ class MonteCarlo
 
 	/** Funktion som ger ett likformigt fördelat slumptal i intervallet 0..1 */
 	double getUniformNumber();
+
+	Vector3f getCosineLobeDir();
+
+	double cosineLobePdf(Vector3f psi, Vector3f Nx) { return (cos(psi*Nx)/M_PI); }
 
 	/** Returns a random double between 0-1 */
 	double random();

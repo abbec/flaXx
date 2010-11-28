@@ -11,7 +11,7 @@ class Options
 {
 
   public:
-    Options() : width(320), height(240), noShadowRays(5), noHemisphereRays(5) {}
+    Options() : width(640), height(480), noShadowRays(4), noHemisphereRays(2), noViewingRays(100) {}
 
     void setWidth(int w) { width = w; }
     int getWidth() { return width; }
@@ -26,6 +26,8 @@ class Options
 
 	unsigned int getNoHemisphereRays() { return noHemisphereRays; }
 
+	unsigned int getNoViewingRays() { return noViewingRays; }
+
   private:
     unsigned int width;
     unsigned int height;
@@ -34,7 +36,7 @@ class Options
 
 	unsigned int noShadowRays;
 	unsigned int noHemisphereRays;
-
+	unsigned int noViewingRays;
 };
 
 } // namespace flaXx

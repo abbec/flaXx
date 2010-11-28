@@ -25,6 +25,22 @@ double MonteCarlo::getUniformNumber()
 	return ((rand()%100)/100.0);
 }
 
+Vector3f MonteCarlo::getCosineLobeDir()
+{
+	// Generate point on hemisphere (cosine sampling)
+	double r1 = rand() / ((double)RAND_MAX + 1);
+	double phi = r1 * M_PI * 2.0;
+	double r2 = rand() / ((double)RAND_MAX + 1);
+	double theta = acos(sqrt(r2));
+
+	double xDir = cos(phi) * sin(theta);
+	double yDir = sin(phi) * sin(theta);
+	double zDir = cos(theta);
+
+	return Vector3f(xDir, yDir, zDir);
+
+}
+
 unsigned int MonteCarlo::random(unsigned int n)
 {
     unsigned long y;

@@ -11,12 +11,18 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 
 
 	// En arealampa
-	lights.reserve(1);
+	lights.reserve(2);
 
-	lights.push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 20.0),
+	lights.push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 25.0),
 															Vector3f(0.0, -1.0, 0.0),
 															Vector3f(1.0, 1.0, 1.0),
 															2.0, 2.0)));
+
+	/*lights.push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(-19.0, 0.0, 25.0),
+															Vector3f(1.0, 0.0, 0.0),
+															Vector3f(0.71, 0.14, 0.53),
+															3.0, 3.0)));*/
+	
 
 	// Fyra plan (rummet)
 
@@ -35,31 +41,33 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::cout << ".";
 
 	// Material för väggen
-	std::tr1::shared_ptr<Material> wall_mtrl(new DiffuseMaterial(Vector3f(0.8, 0.8, 0.8), 0.2));
-
+	std::tr1::shared_ptr<Material> wall_mtrl(new DiffuseMaterial(Vector3f(0.0, 0.0, 0.8), 0.4));
+	std::tr1::shared_ptr<Material> wall_mtrl1(new DiffuseMaterial(Vector3f(0.8, 0.0, 0.0), 0.4));
+	std::tr1::shared_ptr<Material> wall_mtrl2(new DiffuseMaterial(Vector3f(0.0, 0.8, 0.0), 0.4));
+	std::tr1::shared_ptr<Material> wall_mtrl3(new DiffuseMaterial(Vector3f(0.8, 0.8, 0.8), 0.4));
 	// Vänstra väggen
 	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
 
 	// Bakre väggen
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl1)));
 
 	// Högra väggen
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c7, c8, c6, wall_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c7, c8, c6, wall_mtrl2)));
 
 	// Golvet
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c1, c7, c5, wall_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c1, c7, c5, wall_mtrl3)));
 
 	// Taket
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c3, c6, c8, c4, wall_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c3, c6, c8, c4, wall_mtrl1)));
 
 	std::cout << ".";
 
 	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.3, 0.7, 400, 1000));
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.2, 0.5, 200, 100));
 	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.2));
 
-	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -5.0, 30.0), 3.0, sphere_mtrl)));
-	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(1.0, 2.0, 30.0), 2.5, sphere_mtrl2)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -10.0, 25.0), 8.0, sphere_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(15.0, -10.0, 25.0), 2.5, sphere_mtrl2)));
 
 	std::cout << " Done!" << std::endl;
 

@@ -52,7 +52,13 @@ void Render::render()
 	Uint32 finalColor = 0;
 	Uint32 *pixmem32;
 	Vector3f radiance;
-	Vector3f pixelCoord;
+	Vector3f pixelCoord, pixelWidth;
+
+	unsigned int nRays = options->getNoViewingRays();
+	unsigned int nRaysSqrt = ceil(sqrt(nRays));
+	nRays = nRaysSqrt*nRaysSqrt;
+
+	double pixWidth, pixHeight;
 
 	for (int y = 0; y<options->getHeight(); y++)
 	{
@@ -69,11 +75,28 @@ void Render::render()
 
 			// Get pixel coordinates
 			pixelCoord = image->getPixelCoord(x, y);
+			pixelWidth = image->getPixelCoord(x+1, y+1) - pixelCoord;
 
-			// Shoot a ray through the pixel and trace
-			// it through the scene.
-			Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
-			radiance = traceRay(r).colorNormalize();
+			pixWidth = pixelWidth.getX()/double(nRaysSqrt);
+			pixHeight = pixelWidth.getY()/double(nRaysSqrt);
+
+			for (int i = 0; i < nRaysSqrt; i++)
+			{
+				for (int j = 0; j < nRaysSqrt; j++)
+				{
+					double jitterx = double(rand())/(double(RAND_MAX)+1);
+					double jittery = double(rand())/(double(RAND_MAX)+1);
+
+					double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
+					double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
+					// Shoot a ray through the pixel and trace
+					// it through the scene.*/
+					Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
+					radiance += traceRay(r);
+				}
+			}
+
+			radiance = (radiance / nRays).colorNormalize();
 
 			// Map Colors to a 32-bit word
 			finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0),
@@ -244,7 +267,7 @@ Vector3f Render::computeRadiance(Vector3f &x, Vector3f &dir)
 
 	// Estimated radiance is the sum of direct and indirect components
 	estimatedRadiance += directIllumination(x, dir);
-	// estimatedRadiance += indirectIllumination(x, dir);
+	estimatedRadiance += indirectIllumination(x, dir);
 
 	return estimatedRadiance;
 }
@@ -272,7 +295,6 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	Vector3f lightPos;
 
 	MonteCarlo mc;
-	mc.randomize();
 
 	// Loop for all shadowrays
 	for (int i = 0; i < nd; i++)
@@ -285,8 +307,8 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 		lightPos = light->getPosition();
 
 		// Generate point on lightsource (Uniform)
-		xrand =  mc.getUniformNumber()*light->getWidth();
-		zrand = mc.getUniformNumber()*light->getHeight();
+		xrand =  double(rand())/(double(RAND_MAX)+1)*light->getWidth();
+		zrand =  double(rand())/(double(RAND_MAX)+1)*light->getHeight();
 		Lx = (lightPos.getX()  - light->getWidth()/2) + xrand;
 		Lz = (lightPos.getZ() - light->getHeight()/2) + zrand;
 
@@ -296,10 +318,9 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 		shadowRay.setDirection(lightDirection);
 
 		// Calculate radiance
-		pdf = mc.uniformPdf(xrand, 0, lightArea);
+		pdf = mc.uniformPdf(xrand, 0, lightArea)*(1/double(scene.getNumLights()));
 
-		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), lightDirection)))
-			* radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
+		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), lightDirection))) * radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
 	}
 
 	// Normalize with the number of shadowrays
@@ -316,7 +337,9 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 	Vector3f y, psi, mpsi;
 
-	float random, thetaN, phi, probability;
+	double thetaN, phi;
+
+	MonteCarlo mc;
 
 	// Use a local variable for the current object so
 	// that we do not lose it in recursion
@@ -331,17 +354,17 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	{
 		// Generate N paths
 		for (int i = 0; i < nRays; i++)
-		{
-			// Generate uniform point on hemisphere
-			float r1 = rand() / ((float)RAND_MAX + 1);
-			phi = r1 * M_PI * 2.0;
-			float r2 = rand() / ((float)RAND_MAX + 1);
-			thetaN = acos(sqrt(r2));
-			float c = sqrt(1 - r2);
-			probability = cos(thetaN) / M_PI;
-			float xDir = cos(phi) * c;
-			float yDir = sin(phi) * c;
-			float zDir = sqrt(r2);
+		{			
+
+			// Generate point on hemisphere (cosine sampling)
+			double r1 = rand() / ((double)RAND_MAX + 1);
+			double phi = r1 * M_PI * 2.0;
+			double r2 = rand() / ((double)RAND_MAX + 1);
+			double thetaN = acos(sqrt(r2));
+
+			double xDir = cos(phi) * sin(thetaN);
+			double yDir = sin(phi) * sin(thetaN);
+			double zDir = cos(thetaN);
 
 			psi = (Vector3f(xDir, yDir, zDir) + Nx).normalize();
 
@@ -359,8 +382,10 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 				currentObject = rt.getObject();
 
 				// Recursive evaluation of radiance
-				estimatedRadiance += (computeRadiance(y, mpsi) * obj->getMaterial()->brdf(x, theta, Nx, psi)
-					   *(Nx*psi))/(1/2.0*M_PI);
+				rad =  (computeRadiance(y, mpsi).mtimes(obj->getMaterial()->brdf(x, theta, Nx, psi))
+						*(psi*Nx))/(mc.cosineLobePdf(psi, Nx));
+
+				estimatedRadiance += rad;
 			}
 
 		}
