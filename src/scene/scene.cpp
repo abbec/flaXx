@@ -55,10 +55,10 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::cout << ".";
 
 	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0), 1000*100000*Vector3f(1.0, 1.0, 1.0), 0.8, 0.1, 40000, 10));
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.3, 0.7, 400, 1000));
 	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.2));
 	
-	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -5.0, 20.0), 3.0, sphere_mtrl)));
+	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-4.0, -5.0, 30.0), 3.0, sphere_mtrl)));
 	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(1.0, 2.0, 30.0), 2.5, sphere_mtrl2)));
 
 	std::cout << " Done!" << std::endl;

@@ -23,17 +23,13 @@ int main()
 	Plane p(downLeft, downRight, upRight, upLeft, std::tr1::shared_ptr<Material>());
 
 	// En ray som skär
-	Ray is(Vector3f(-13.8662, 1.5489, 1.0), Vector3f(-0.00151623, -0.926239, -0.376933), Vector3f(1.0), 1.0);
+	Ray is(Vector3f(-2.0, 0.9, 15.0), Vector3f(0.0, -1.0, 0.0), Vector3f(1.0), 1.0);
 	is.setStart(is.getStart() + is.getDirection()*0.01);
 
 	// En som inte gör det
 	//Ray nis(Vector3f(0.0, 0.0, 14.1), Vector3f(0.0, 0.0, 1.0), Vector3f(1.0), 1.0);
 
-	if (p.intersect(is) != 0.0)
-		std::cout << "FELFELFEL" << std::endl;
-	else
-		std::cout << "Correctomundo" << std::endl;
-
+	std::cout << s.intersect(is) << std::endl;
 
 	return 0;
 }

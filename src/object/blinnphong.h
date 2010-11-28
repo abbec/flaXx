@@ -7,6 +7,9 @@
 namespace flaXx
 {
 
+/** Implementation of the modified Blinn-Phong
+ * model BRDF. */
+
 class BlinnPhong : public Material
 {
   public:
@@ -19,7 +22,6 @@ class BlinnPhong : public Material
   private:
 	double roughness, specIntensity;
 	Vector3f specColor;
-
 
 };
 
