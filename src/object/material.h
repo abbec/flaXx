@@ -19,8 +19,8 @@ class Material
 	void setTransparent(bool t) { transparent = t; }
 
 
-	bool getMirror() { return mirror; }
-	bool getTransparent() { return transparent; }
+	bool isMirror() { return mirror; }
+	bool isTransparent() { return transparent; }
 	double getSpecular() { return ks; }
 	double getDiffuse() { return kd; }
 

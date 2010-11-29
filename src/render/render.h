@@ -53,6 +53,9 @@ private:
 	double radianceTransfer(Ray &, Vector3f, Vector3f &);
 	double absorption();
 
+	Vector3f getSpecularRay(const Vector3f &, const double);
+	Vector3f getDiffuseRay(const Vector3f &);
+
 	SDL_Surface *createBufferSurface();
 
 	std::tr1::shared_ptr<Options> options;

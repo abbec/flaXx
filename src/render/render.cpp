@@ -332,7 +332,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 
 Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 {
-	Vector3f estimatedRadiance(0.0), rad;
+	Vector3f estimatedRadiance;
 	unsigned int nRays = options->getNoHemisphereRays();
 
 	Vector3f y, psi, mpsi;
@@ -346,32 +346,47 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	std::tr1::shared_ptr<Object> obj = currentObject;
 
 	// Russian roulette stopping condition
+	bool cont = false;
 	double alpha = absorption();
 	Vector3f Nx = obj->getNormal(x);
-	double reflectance = (currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getDiffuse())*0.5;
+	double reflectance = currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getDiffuse();
 
-	if (alpha < reflectance)
-	{
-		// Generate N paths
-		for (int i = 0; i < nRays; i++)
-		{			
+	// Generate N paths
+	for (int i = 0; i < nRays; i++)
+	{			
+		
+		if (alpha < currentObject->getMaterial()->getDiffuse()) /* Diffuse indirect */
+		{
+			//std::cout << "Diffuse" << std::endl;
+			
+			psi = getDiffuseRay(Nx);
+			cont = true;
+		}
+		else if (alpha < currentObject->getMaterial()->getDiffuse() + currentObject->getMaterial()->getSpecular()) /* Specular reflection */
+		{
+			//std::cout << "Specular" << std::endl;
+			// Perfect reflection direction
+			Vector3f reflectionDir = 2*(Nx*theta)*Nx - theta;
+			
+			if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
+				psi = reflectionDir;
+			else
+				psi = getSpecularRay(reflectionDir, currentObject->getMaterial()->getSpecular());
 
-			// Generate point on hemisphere (cosine sampling)
-			double r1 = double(rand()) / ((double)RAND_MAX);
-			double phi = r1 * M_PI * 2.0;
-			double r2 =  double(rand()) / (double(RAND_MAX));
-			double r2sqrt = sqrt(r2);
-			double thetaN = acos(r2sqrt);
-			double c = sqrt(1-r2);
+			cont = true;
+		}
+		/*else if (alpha < currentObject->getMaterial()->getDiffuse() + currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getTransmission()) // Transmission 
+		{
+			
 
-			double xDir = cos(phi) * c;
-			double yDir = sin(phi) * c;
-			double zDir = r2sqrt;
+		}*/
+		else /* Absorption */
+			cont = false;
 
-			psi = (Vector3f(xDir, yDir, zDir)+Nx).normalize();
-
+		if (cont)
+		{
+			// If some kind of reflection happened, trace the ray
 			Ray sampledDir(x + psi*0.01, psi, Vector3f(1.0), 1.0/nRays);
-
 			mpsi = -psi;
 
 			Scene::ShootReturn rt = scene.shootRay(sampledDir);
@@ -382,20 +397,19 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 			{
 				// We are now at point y on a new object
 				currentObject = rt.getObject();
-
+				
 				// Recursive evaluation of radiance
 				estimatedRadiance += computeRadiance(y, mpsi).mtimes((obj->getMaterial()->brdf(x, theta, Nx, psi)));
 			}
-
 		}
-
-		// Normalize with number of hemisphere rays
-	estimatedRadiance = M_PI*estimatedRadiance/double(nRays);
 
 	}
 
+	// Normalize with number of hemisphere rays
+	estimatedRadiance = estimatedRadiance/double(nRays);
+
 	// Normalize with the reflectance (1-absorption)
-	return estimatedRadiance/(reflectance > 0.0 ? reflectance : 1.0);
+	return estimatedRadiance;
 
 }
 
@@ -430,6 +444,44 @@ double Render::radianceTransfer(Ray &shadowRay, Vector3f lsNormal, Vector3f &x)
 double Render::absorption()
 {
 	return double(rand())/(double(RAND_MAX)+1);
+}
+
+
+Vector3f Render::getSpecularRay(const Vector3f &reflectionDir, const double specular)
+{
+	// Set ray1 as the distributed ray wrt a (0, 0, 1) focus
+	double theta = 2.0 * M_PI * absorption(); // Azimuth
+	double phi = acos( sqrt( pow( absorption(), 1.0 / ( specular + 1 ) ) ) ); // Elevation N = 0 is just a uniform sphere distribution
+
+	Vector3f ray1(cos(theta) * sin(phi), sin(theta) * sin(phi), cos(phi));
+	
+	// Rotate ray1 to distribution of normal vector	(output: ray)
+	double el = -acos(reflectionDir.getZ());
+	double az = -atan2(reflectionDir.getY(), reflectionDir.getX());	
+	
+	// Y Rot
+	Vector3f ray2(cos(el) * ray1.getX() - sin(el) * ray1.getZ(), ray1.getY(), sin(el) * ray1.getX() + cos(el) * ray1.getZ());
+	
+	// Z Rot
+	return Vector3f(cos(az) * ray2.getX() + sin(az) * ray2.getY(), -sin(az) * ray2.getX() + cos(az) * ray2.getY(), ray2.getZ()).normalize();
+}
+
+
+Vector3f Render::getDiffuseRay(const Vector3f &normal)
+{
+	// Generate point on hemisphere (cosine sampling)
+	double r1 = double(rand()) / ((double)RAND_MAX);
+	double phi = r1 * M_PI * 2.0;
+	double r2 =  double(rand()) / (double(RAND_MAX));
+	double r2sqrt = sqrt(r2);
+	double thetaN = acos(r2sqrt);
+	double c = sqrt(1-r2);
+
+	double xDir = cos(phi) * c;
+	double yDir = sin(phi) * c;
+	double zDir = r2sqrt;
+
+	return (Vector3f(xDir, yDir, zDir)+normal).normalize();
 }
 
 SDL_Surface *Render::createBufferSurface()
