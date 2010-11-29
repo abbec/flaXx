@@ -1,18 +1,15 @@
 #include "math/vector3f.h"
 #include "math/montecarlo.h"
-
+#include <cstdlib>
+#include <ctime>
 using namespace flaXx;
 
 int main()
 {
-
-	MonteCarlo mc;
-
-	mc.randomize();
-
+	srand(time(NULL));
 
 	for (int i=0; i<10; i++)
-		std::cout << mc.random() << std::endl;
+		std::cout << (rand() % 90 + 910)/1000.0 << std::endl;
 
 
 	return 0;

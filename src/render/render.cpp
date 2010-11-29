@@ -84,8 +84,8 @@ void Render::render()
 			{
 				for (int j = 0; j < nRaysSqrt; j++)
 				{
-					double jitterx = double(rand())/(double(RAND_MAX)+1);
-					double jittery = double(rand())/(double(RAND_MAX)+1);
+					double jitterx = double(rand())/(double(RAND_MAX));
+					double jittery = double(rand())/(double(RAND_MAX));
 
 					double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
 					double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
@@ -357,16 +357,18 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 		{			
 
 			// Generate point on hemisphere (cosine sampling)
-			double r1 = rand() / ((double)RAND_MAX + 1);
+			double r1 = double(rand()) / ((double)RAND_MAX);
 			double phi = r1 * M_PI * 2.0;
-			double r2 = rand() / ((double)RAND_MAX + 1);
-			double thetaN = acos(sqrt(r2));
+			double r2 =  double(rand()) / (double(RAND_MAX));
+			double r2sqrt = sqrt(r2);
+			double thetaN = acos(r2sqrt);
+			double c = sqrt(1-r2);
 
-			double xDir = cos(phi) * sin(thetaN);
-			double yDir = sin(phi) * sin(thetaN);
-			double zDir = cos(thetaN);
+			double xDir = cos(phi) * c;
+			double yDir = sin(phi) * c;
+			double zDir = r2sqrt;
 
-			psi = (Vector3f(xDir, yDir, zDir) + Nx).normalize();
+			psi = (Vector3f(xDir, yDir, zDir)+Nx).normalize();
 
 			Ray sampledDir(x + psi*0.01, psi, Vector3f(1.0), 1.0/nRays);
 
@@ -382,16 +384,13 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 				currentObject = rt.getObject();
 
 				// Recursive evaluation of radiance
-				rad =  (computeRadiance(y, mpsi).mtimes(obj->getMaterial()->brdf(x, theta, Nx, psi))
-						*(psi*Nx))/(mc.cosineLobePdf(psi, Nx));
-
-				estimatedRadiance += rad;
+				estimatedRadiance += computeRadiance(y, mpsi).mtimes((obj->getMaterial()->brdf(x, theta, Nx, psi)));
 			}
 
 		}
 
 		// Normalize with number of hemisphere rays
-		estimatedRadiance = estimatedRadiance/double(nRays);
+	estimatedRadiance = M_PI*estimatedRadiance/double(nRays);
 
 	}
 

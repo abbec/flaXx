@@ -35,7 +35,7 @@ class MonteCarlo
 
 	Vector3f getCosineLobeDir();
 
-	double cosineLobePdf(Vector3f psi, Vector3f Nx) { return (cos(psi*Nx)/M_PI); }
+	double cosineLobePdf(Vector3f psi, Vector3f Nx) { return ((psi*Nx)/M_PI); }
 
 	/** Returns a random double between 0-1 */
 	double random();
