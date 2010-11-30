@@ -24,8 +24,10 @@ unsigned int flaXx::ImagePlane::getTile()
 	// Concentrate on the middle of the image first.
 	// It is probably most important :)
 	unsigned int middle = floor(tiles.size()*0.5);
-	unsigned int random = (double(rand())/double(RAND_MAX)) > 0.5 ? 1 : -1;
-
+	unsigned int random = 0;
+	if (tiles.size() > 1)
+		random = (double(rand())/double(RAND_MAX)) > 0.5 ? 1 : -1;
+		
 	return middle+random;
 }
 
