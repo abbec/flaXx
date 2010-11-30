@@ -56,84 +56,95 @@ void Render::render()
 
 	unsigned int nRays = options->getNoViewingRays();
 	unsigned int nRaysSqrt = ceil(sqrt(nRays));
+	unsigned int tileNum, xStart, xEnd, yStart, yEnd;
 	nRays = nRaysSqrt*nRaysSqrt;
 
 	double pixWidth, pixHeight;
 
-	for (int y = 0; y<options->getHeight(); y++)
+	while (!image->isFinished())
 	{
-		for (int x = 0; x<options->getWidth(); x++)
+		tileNum = image->getTile();
+		xStart = image->getTileX(tileNum); xEnd = xStart + image->getTileWidth(tileNum);
+		yStart = image->getTileY(tileNum); yEnd = yStart + image->getTileHeight(tileNum);
+
+		for (int y = yStart; y<yEnd; ++y)
 		{
-			// Lock screen before drawing pixel
-			if(SDL_MUSTLOCK(screen))
+			for (int x = xStart; x<xEnd; ++x)
 			{
-				if(SDL_LockSurface(screen) < 0)
-					return;
-			}
-
-			radiance = 0.0;
-
-			// Get pixel coordinates
-			pixelCoord = image->getPixelCoord(x, y);
-			pixelWidth = image->getPixelCoord(x+1, y+1) - pixelCoord;
-
-			pixWidth = pixelWidth.getX()/double(nRaysSqrt);
-			pixHeight = pixelWidth.getY()/double(nRaysSqrt);
-
-			for (int i = 0; i < nRaysSqrt; i++)
-			{
-				for (int j = 0; j < nRaysSqrt; j++)
+				// Lock screen before drawing pixel
+				if(SDL_MUSTLOCK(screen))
 				{
-					double jitterx = double(rand())/(double(RAND_MAX));
-					double jittery = double(rand())/(double(RAND_MAX));
-
-					double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
-					double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
-					// Shoot a ray through the pixel and trace
-					// it through the scene.*/
-					Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
-					radiance += traceRay(r);
+					if(SDL_LockSurface(screen) < 0)
+						return;
 				}
-			}
 
-			radiance = (radiance / nRays).colorNormalize();
+				radiance = 0.0;
 
-			// Map Colors to a 32-bit word
-			finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0),
-									 floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0));
+				// Get pixel coordinates
+				pixelCoord = image->getPixelCoord(x, y);
+				pixelWidth = image->getPixelCoord(x+1, y+1) - pixelCoord;
 
-			// Draw pixel on screen
-			pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
-			*pixmem32 = finalColor;
+				pixWidth = pixelWidth.getX()/double(nRaysSqrt);
+				pixHeight = pixelWidth.getY()/double(nRaysSqrt);
 
-
-			// Draw pixel in the back-buffer
-			finalColor = SDL_MapRGBA( buffer->format, floor(radiance.getX()*255.0),
-									  floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0), SDL_ALPHA_OPAQUE );
-
-			pixmem32 = (Uint32*) (buffer->pixels) + (y*buffer->pitch)/4 + x;
-			*pixmem32 = finalColor;
-
-			// Unlock the screen and update the pixel
-			if(SDL_MUSTLOCK(screen))
-				SDL_UnlockSurface(screen);
-
-			SDL_UpdateRect(screen, x, y, 1, 1);
-
-
-			// Poll an event so that it is possible to exit
-			SDL_PollEvent(&event);
-			switch(event.type)
-			{
-			case SDL_QUIT:
+				for (int i = 0; i < nRaysSqrt; i++)
 				{
-					return;
+					for (int j = 0; j < nRaysSqrt; j++)
+					{
+						double jitterx = double(rand())/(double(RAND_MAX));
+						double jittery = double(rand())/(double(RAND_MAX));
+
+						double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
+						double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
+						// Shoot a ray through the pixel and trace
+						// it through the scene.*/
+						Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
+						radiance += traceRay(r);
+					}
 				}
+
+				radiance = (radiance / nRays).colorNormalize();
+
+				// Map Colors to a 32-bit word
+				finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0),
+										 floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0));
+
+				// Draw pixel on screen
+				pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
+				*pixmem32 = finalColor;
+
+
+				// Draw pixel in the back-buffer
+				finalColor = SDL_MapRGBA( buffer->format, floor(radiance.getX()*255.0),
+										  floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0), SDL_ALPHA_OPAQUE );
+
+				pixmem32 = (Uint32*) (buffer->pixels) + (y*buffer->pitch)/4 + x;
+				*pixmem32 = finalColor;
+
+				// Unlock the screen and update the pixel
+				if(SDL_MUSTLOCK(screen))
+					SDL_UnlockSurface(screen);
+
+				SDL_UpdateRect(screen, x, y, 1, 1);
+
+				// Poll an event so that it is possible to exit
+				SDL_PollEvent(&event);
+				switch(event.type)
+				{
+				case SDL_QUIT:
+					{
+						return;
+					}
+				}
+
 			}
 
 		}
 
+		// Tell image that this tile is done
+		image->setFinished(tileNum);
 	}
+
 
 	// Tell user that rendering is finshed
 	std::cout << "Done! The rendering is finished. To exit and save the render, just close the window. " << std::endl;
@@ -366,7 +377,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 		{
 			//std::cout << "Specular" << std::endl;
 			// Perfect reflection direction
-			Vector3f reflectionDir = 2*(Nx*theta)*Nx - theta;
+			Vector3f reflectionDir = (2*(Nx*theta)*Nx - theta).normalize();
 			
 			if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
 				psi = reflectionDir;
@@ -469,19 +480,25 @@ Vector3f Render::getSpecularRay(const Vector3f &reflectionDir, const double spec
 
 Vector3f Render::getDiffuseRay(const Vector3f &normal)
 {
-	// Generate point on hemisphere (cosine sampling)
+	// Generate point on hemisphere (cosine sampling around normal)
+	double n = 0.1;
 	double r1 = double(rand()) / ((double)RAND_MAX);
 	double phi = r1 * M_PI * 2.0;
 	double r2 =  double(rand()) / (double(RAND_MAX));
-	double r2sqrt = sqrt(r2);
-	double thetaN = acos(r2sqrt);
-	double c = sqrt(1-r2);
-
-	double xDir = cos(phi) * c;
-	double yDir = sin(phi) * c;
-	double zDir = r2sqrt;
-
-	return (Vector3f(xDir, yDir, zDir)+normal).normalize();
+	//double r2sqrt = sqrt(r2);
+	double theta = acos(pow(r2, 1/(1+n)));
+	
+	Vector3f ray1(cos(theta) * sin(phi), sin(theta) * sin(phi), cos(phi));
+	
+	// Rotate ray1 to distribution of normal vector	(output: ray)
+	double el = -acos(normal.getZ());
+	double az = -atan2(normal.getY(), normal.getX());	
+	
+	// Y Rot
+	Vector3f ray2(cos(el) * ray1.getX() - sin(el) * ray1.getZ(), ray1.getY(), sin(el) * ray1.getX() + cos(el) * ray1.getZ());
+	
+	// Z Rot
+	return Vector3f(cos(az) * ray2.getX() + sin(az) * ray2.getY(), -sin(az) * ray2.getX() + cos(az) * ray2.getY(), ray2.getZ()).normalize();
 }
 
 SDL_Surface *Render::createBufferSurface()

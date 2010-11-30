@@ -14,5 +14,5 @@ Vector3f BlinnPhong::brdf(const Vector3f &point, const Vector3f &dir, const Vect
 
 	Vector3f ret = getSpecular()*i*specColor*specIntensity + getDiffuse()*getColor();
 
-	return ret;
+	return ret.colorNormalize();
 }
