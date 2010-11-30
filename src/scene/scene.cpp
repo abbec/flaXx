@@ -4,16 +4,18 @@
 #include "object/blinnphong.h"
 
 flaXx::Scene::Scene() : 
-camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
+	camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0)),
+	lights(new std::vector<std::tr1::shared_ptr<Light> >()),
+	objects(new std::list<std::tr1::shared_ptr<Object> >())
 {
 	// Skapa standardobjekt i scenen
 	std::cout << "Construcing example scene.";
 
 
 	// En arealampa
-	lights.reserve(2);
+	lights->reserve(2);
 
-	lights.push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 25.0),
+	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 25.0),
 															Vector3f(0.0, -1.0, 0.0),
 															Vector3f(1.0, 1.0, 1.0),
 															2.0, 2.0)));
@@ -46,19 +48,19 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	std::tr1::shared_ptr<Material> wall_mtrl2(new DiffuseMaterial(Vector3f(0.0, 0.8, 0.0), 0.8));
 	std::tr1::shared_ptr<Material> wall_mtrl3(new DiffuseMaterial(Vector3f(0.8, 0.8, 0.8), 0.8));
 	// Vänstra väggen
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
 
 	// Bakre väggen
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl1)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl1)));
 
 	// Högra väggen
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c7, c8, c6, wall_mtrl2)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c7, c8, c6, wall_mtrl2)));
 
 	// Golvet
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c1, c7, c5, wall_mtrl3)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c1, c7, c5, wall_mtrl3)));
 
 	// Taket
-	objects.push_back(std::tr1::shared_ptr<Object> (new Plane(c3, c6, c8, c4, wall_mtrl1)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c3, c6, c8, c4, wall_mtrl1)));
 
 	std::cout << ".";
 
@@ -68,12 +70,19 @@ camera(Camera(Vector3f(0.0, 0.0, 0.0), Vector3f(0.0, 0.0, 1.0), 1.0))
 	
 	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.5));
 
-	objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -10.0, 25.0), 6.0, sphere_mtrl)));
-	//objects.push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(5.0, -10.0, 25.0), 2.5, sphere_mtrl2)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -10.0, 25.0), 6.0, sphere_mtrl)));
+	//objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(5.0, -10.0, 25.0), 2.5, sphere_mtrl2)));
 
 	std::cout << " Done!" << std::endl;
 
 }
+
+/*flaXx::Scene(std::string filename)
+{
+	// Parse XML file to read scene
+	
+
+	}*/
 
 flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 {
@@ -84,7 +93,7 @@ flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 	std::tr1::shared_ptr<Object> currObj;
 	double distance, shortestDistance = std::numeric_limits<double>::max();
 
-	for (std::list< std::tr1::shared_ptr<Object> >::iterator it = objects.begin(); it != objects.end(); it++)
+	for (std::list< std::tr1::shared_ptr<Object> >::iterator it = objects->begin(); it != objects->end(); it++)
 	{
 		intersectionPoint = (*it)->intersect(r);
 

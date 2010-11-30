@@ -36,6 +36,9 @@ class ImagePlane
 	unsigned int width, height;
 	double dx, dy, x1, x2, y1, y2;
 	std::vector<Tile> tiles;
+
+	bool deviateAvailable;
+	double storedDeviate;
 	
 	unsigned int nTiles;
 	

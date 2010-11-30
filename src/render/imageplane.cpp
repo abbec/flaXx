@@ -1,6 +1,6 @@
 #include "render/imageplane.h"
 
-flaXx::ImagePlane::ImagePlane(double _fov, unsigned int _width, unsigned int _height) : fovx(_fov), width(_width), height(_height), x1(-2), x2(2), y1(2), y2(-2)
+flaXx::ImagePlane::ImagePlane(double _fov, unsigned int _width, unsigned int _height) : fovx(_fov), width(_width), height(_height), x1(-2), x2(2), y1(2), y2(-2), deviateAvailable(false)
 {	
 	// Räkna ut field of view för y
 	//fovy = (((double)height)/((double)width))*fovx*1.15;
@@ -21,7 +21,12 @@ flaXx::Vector3f flaXx::ImagePlane::getPixelCoord(unsigned int x, unsigned int y)
 
 unsigned int flaXx::ImagePlane::getTile()
 {
-	return rand() % tiles.size();
+	// Concentrate on the middle of the image first.
+	// It is probably most important :)
+	unsigned int middle = floor(tiles.size()*0.5);
+	unsigned int random = (double(rand())/double(RAND_MAX)) > 0.5 ? 1 : -1;
+
+	return middle+random;
 }
 
 void flaXx::ImagePlane::createTiles()

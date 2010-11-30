@@ -1,6 +1,8 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include "math/vector3f.h"
+
 namespace flaXx
 {
 

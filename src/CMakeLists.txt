@@ -13,8 +13,7 @@ render/render.cpp
 scene/scene.cpp
 scene/camera.cpp
 util/commandLineParser.cpp
-util/options.cpp
-targa/targa.c)
+util/options.cpp)
 
 
 set(INTER_TEST_SRC
@@ -29,9 +28,16 @@ tests/random_test.cpp
 math/montecarlo.cpp
 math/vector3f.cpp)
 
+set(XML_TEST_SRC
+tests/xml_test.cpp
+util/xmlParser.cpp
+scene/camera.cpp)
+
 add_executable(tests/i_test ${INTER_TEST_SRC})
 
 add_executable(tests/random_test ${RANDOM_TEST_SRC})
+
+add_executable(tests/xml_test ${XML_TEST_SRC})
 
 # Skapa exekerbar fil
 add_executable(flaXx ${FLAXX_SRC})

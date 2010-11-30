@@ -48,14 +48,14 @@ class Scene
 
 	Vector3f getCameraPosition() { return camera.getPosition(); }
 
-	std::tr1::shared_ptr<Light> getLight(unsigned int lightNum) { return lights.at(lightNum);}
-	int getNumLights() { return lights.size(); }
+	std::tr1::shared_ptr<Light> getLight(unsigned int lightNum) { return lights->at(lightNum);}
+	int getNumLights() { return lights->size(); }
 
   private:
 
 	Camera camera;
-	std::vector< std::tr1::shared_ptr<Light> > lights;
-	std::list< std::tr1::shared_ptr<Object> > objects;
+	std::tr1::shared_ptr< std::vector< std::tr1::shared_ptr<Light> > > lights;
+	std::tr1::shared_ptr< std::list< std::tr1::shared_ptr<Object> > > objects;
 
 };
 
