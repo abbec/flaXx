@@ -66,7 +66,7 @@ void Render::render()
 		tileNum = image->getTile();
 		xStart = image->getTileX(tileNum); xEnd = xStart + image->getTileWidth(tileNum);
 		yStart = image->getTileY(tileNum); yEnd = yStart + image->getTileHeight(tileNum);
-
+		
 		for (int y = yStart; y<yEnd; ++y)
 		{
 			for (int x = xStart; x<xEnd; ++x)
@@ -329,7 +329,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 		// Calculate radiance
 		pdf = mc.uniformPdf(xrand, 0, lightArea)*(1/double(scene.getNumLights()));
 
-		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), -lightDirection))) * radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
+		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), lightDirection))) * radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
 	}
 
 	// Normalize with the number of shadowrays
@@ -355,7 +355,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	std::tr1::shared_ptr<Object> obj = currentObject;
 
 	// Russian roulette stopping condition
-	bool cont = false;
+	bool cont = false, refr = false;
 	double alpha = absorption();
 	Vector3f Nx = obj->getNormal(x);
 	double reflectance = currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getDiffuse();
@@ -364,9 +364,11 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	for (int i = 0; i < nRays; i++)
 	{			
 		
-		Vector3f mTheta = -theta;
+		Vector3f mtheta = -theta;
 
-		if (alpha < currentObject->getMaterial()->getDiffuse()) /* Diffuse indirect */
+		bool inside = ((Nx*mtheta) > 0.0);
+
+		if (alpha < currentObject->getMaterial()->getDiffuse() && !inside) // Diffuse indirect
 		{
 			//std::cout << "Diffuse" << std::endl;
 			
@@ -375,22 +377,42 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 		}
 		else if (alpha < currentObject->getMaterial()->getDiffuse() + currentObject->getMaterial()->getSpecular()) /* Specular reflection */
 		{
-			//std::cout << "Specular" << std::endl;
-			// Perfect reflection direction
-			Vector3f reflectionDir = (mTheta - 2.0*(mTheta*Nx)*Nx).normalize();
+
+			if (!inside)
+			{
+				//std::cout << "Specular" << std::endl;
+				// Perfect reflection direction
+				Vector3f reflectionDir = (mtheta - 2.0*(mtheta*Nx)*Nx).normalize();
 			
-			if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
-				psi = reflectionDir;
+				if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
+					psi = reflectionDir;
+				else if (alpha < currentObject->getMaterial()->getTransmission())
+				{
+					double eta = currentObject->getMaterial()->getEta();
+					psi = refract(Nx, mtheta, eta);
+
+					refr = true;
+				}
+				else
+					psi = getSpecularRay(reflectionDir, currentObject->getMaterial()->getSpecular());
+
+				cont = true;
+			}
 			else
-				psi = getSpecularRay(reflectionDir, currentObject->getMaterial()->getSpecular());
+			{
+				double eta = 1.0/currentObject->getMaterial()->getEta();
 
-			cont = true;
+				// Calculate refraction dir
+				psi = refract(-Nx, mtheta, eta);
+
+				if (psi != 0.0)
+				{
+					//Nx = -Nx;
+					cont = true;
+					refr = true;
+				}
+			}
 		}
-		/*else if (alpha < currentObject->getMaterial()->getDiffuse() + currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getTransmission()) // Transmission 
-		{
-			
-
-		}*/
 		else /* Absorption */
 			cont = false;
 
@@ -402,15 +424,22 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 			Scene::ShootReturn rt = scene.shootRay(sampledDir);
 			y = rt.getPoint();
-
+			
 			// Make sure we do not leave the scene
 			if (y != 0.0)
 			{
 				// We are now at point y on a new object
 				currentObject = rt.getObject();
 				
+				Vector3f brdf;
+
+				if (refr)
+					brdf = Vector3f(1.0);
+				else
+					brdf = obj->getMaterial()->brdf(x, theta, Nx, psi);
+				
 				// Recursive evaluation of radiance
-				estimatedRadiance += computeRadiance(y, mpsi).mtimes((obj->getMaterial()->brdf(x, theta, Nx, psi)));
+				estimatedRadiance += computeRadiance(y, mpsi).mtimes(brdf);
 			}
 		}
 
@@ -420,7 +449,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	estimatedRadiance = estimatedRadiance/double(nRays);
 
 	// Normalize with the reflectance (1-absorption)
-	return estimatedRadiance;
+	return estimatedRadiance/reflectance;
 
 }
 
@@ -457,6 +486,27 @@ double Render::absorption()
 	return double(rand())/(double(RAND_MAX)+1);
 }
 
+
+Vector3f Render::refract(const Vector3f &normal, const Vector3f &psi, const double eta) const
+{
+	Vector3f psiN = psi.normalize();
+	Vector3f Nx = normal.normalize();
+
+	double cosi = -(Nx*psiN);
+
+	// Calculate refraction dir
+	double cost2 =  1-eta*eta*(1-(cosi*cosi));
+	
+	// Brewster's angle
+	if (cost2 < 0.0)
+		return Vector3f(0.0);
+
+	double beta = 0.0;
+
+	beta = sqrtf(cost2);		
+
+	return ((eta*psiN) + (eta*cosi-beta)*Nx).normalize();
+}
 
 Vector3f Render::getSpecularRay(const Vector3f &reflectionDir, const double specular)
 {

@@ -55,6 +55,7 @@ private:
 
 	Vector3f getSpecularRay(const Vector3f &, const double);
 	Vector3f getDiffuseRay(const Vector3f &);
+	Vector3f refract(const Vector3f &normal, const Vector3f &psi, const double eta) const;
 
 	SDL_Surface *createBufferSurface();
 

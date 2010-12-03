@@ -15,15 +15,15 @@ flaXx::Scene::Scene() :
 	// En arealampa
 	lights->reserve(2);
 
-	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 25.0),
+	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 5.0),
 															Vector3f(0.0, -1.0, 0.0),
 															Vector3f(1.0, 1.0, 1.0),
 															2.0, 2.0)));
 
-	/*lights.push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(-19.0, 0.0, 25.0),
-															Vector3f(1.0, 0.0, 0.0),
-															Vector3f(0.71, 0.14, 0.53),
-															3.0, 3.0)));*/
+	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 35.0),
+															Vector3f(0.0, -1.0, 0.0),
+															Vector3f(1.0, 1.0, 1.0),
+															2.0, 2.0)));
 	
 
 	// Fyra plan (rummet)
@@ -65,13 +65,20 @@ flaXx::Scene::Scene() :
 	std::cout << ".";
 
 	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.5, 200, 100));
-	sphere_mtrl->setMirror(true);
-	
-	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 0.0, 0.0), 0.5));
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.9, 200, 100));
+	//sphere_mtrl->setMirror(true);
+	sphere_mtrl->setTransmission(1.0, 0.645);
 
-	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -10.0, 25.0), 6.0, sphere_mtrl)));
-	//objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(5.0, -10.0, 25.0), 2.5, sphere_mtrl2)));
+
+	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 1.0, 0.0), 0.5));
+
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(2.0, 0.0, 25.0), 6.0, sphere_mtrl)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, 0.0, 33.0), 2.0, sphere_mtrl2)));
+
+	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.9, 200, 100));
+	sphere_mtrl3->setMirror(true);
+
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-5.0, -10.0, 20.0), 5.0, sphere_mtrl3)));
 
 	std::cout << " Done!" << std::endl;
 
