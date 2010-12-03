@@ -31,5 +31,7 @@ int main()
 
 	std::cout << s.intersect(is) << std::endl;
 
+	std::cout << Vector3f(1.0) << -Vector3f(1.0) << std::endl;
+
 	return 0;
 }

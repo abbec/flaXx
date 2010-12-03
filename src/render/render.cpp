@@ -264,7 +264,8 @@ Vector3f Render::traceRay(Ray &r)
 	Scene::ShootReturn rt = scene.shootRay(r);
 	Vector3f x = rt.getPoint();
 	currentObject = rt.getObject();
-	Vector3f dir = (x - scene.getCameraPosition()).normalize();
+
+	Vector3f dir = (scene.getCameraPosition()-x).normalize();
 
 	if (x != 0.0)
 		return computeRadiance(x, dir);
@@ -289,13 +290,10 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	Vector3f estimatedRadiance, lightDirection, nLightDirection, radiance;
 	int nd = options->getNoShadowRays();
 
+	//theta = -theta;
+
 	Ray shadowRay;
 	double Lx, Lz, xrand, zrand, pdf;
-
-	// Light is coming from the lightsource
-	// and going towards the eye. Therefore
-	// the direction has to be flipped.
-	theta = -theta;
 
 	// Fetch a light. TODO: Move inside loop and sample
 	// among multiple lightsources
@@ -331,7 +329,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 		// Calculate radiance
 		pdf = mc.uniformPdf(xrand, 0, lightArea)*(1/double(scene.getNumLights()));
 
-		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), lightDirection))) * radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
+		estimatedRadiance += (light->getColor().mtimes(currentObject->getMaterial()->brdf(x, theta, currentObject->getNormal(x), -lightDirection))) * radianceTransfer(shadowRay, light->getNormal(), x)/pdf;
 	}
 
 	// Normalize with the number of shadowrays
@@ -366,6 +364,8 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 	for (int i = 0; i < nRays; i++)
 	{			
 		
+		Vector3f mTheta = -theta;
+
 		if (alpha < currentObject->getMaterial()->getDiffuse()) /* Diffuse indirect */
 		{
 			//std::cout << "Diffuse" << std::endl;
@@ -377,7 +377,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 		{
 			//std::cout << "Specular" << std::endl;
 			// Perfect reflection direction
-			Vector3f reflectionDir = (2*(Nx*theta)*Nx - theta).normalize();
+			Vector3f reflectionDir = (mTheta - 2.0*(mTheta*Nx)*Nx).normalize();
 			
 			if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
 				psi = reflectionDir;
