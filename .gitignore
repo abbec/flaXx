@@ -7,3 +7,10 @@
 /docs/html/*
 docs/latex/*
 /scenes/scene.x3d
+/docs/report/report.aux
+/docs/report/report.bbl
+/docs/report/report.blg
+/docs/report/report.lof
+/docs/report/report.log
+/docs/report/report.pdf
+/docs/report/report.toc

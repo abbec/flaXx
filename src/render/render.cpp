@@ -356,14 +356,16 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 	// Russian roulette stopping condition
 	bool cont = false, refr = false;
-	double alpha = absorption();
+	double alpha = 0.0;
 	Vector3f Nx = obj->getNormal(x);
 	double reflectance = currentObject->getMaterial()->getSpecular() + currentObject->getMaterial()->getDiffuse();
 
 	// Generate N paths
+	// TODO: Limit the recursion depth?
 	for (int i = 0; i < nRays; i++)
 	{			
 		
+		alpha = absorption();
 		Vector3f mtheta = -theta;
 
 		bool inside = ((Nx*mtheta) > 0.0);

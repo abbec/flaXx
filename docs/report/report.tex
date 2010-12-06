@@ -1,0 +1,81 @@
+\documentclass[a4paper]{report}
+
+\usepackage{graphicx}
+\usepackage{amsmath, amsthm}
+
+% To get slightly smaller margins
+\usepackage{fullpage}
+
+% To get paragraphs right
+\usepackage[parfill]{parskip}
+
+% Correct input encoding
+\usepackage[utf8x]{inputenc}
+
+\begin{document}
+
+\title{FlaXx: A Monte-Carlo (Stochastic) Ray Tracer}
+\author{Nathalie Ek \and Albert Cervin}
+
+\maketitle
+
+\begin{abstract}
+Abstract goes here.
+\end{abstract}
+
+\tableofcontents
+
+\listoffigures
+
+\chapter{Introduction}
+
+\section{Global Illumination}
+
+The problem of global illumination has existed just as long as images
+have been produced with computers. The problem consists of solving the
+rendering equation. The hemispherical formulation of the rendering equation is
+
+\begin{equation}
+  L(x \to \Theta) = L_e(x \to \Theta) + \int_{\Omega_x}f_r(x,\Psi \to \Theta)L(x \gets \Psi)\cos{N_x,\Psi}d\omega_\Psi
+  \label{eq:renderingeq}
+\end{equation}
+
+where \(L(x \to \Theta)\) is the radiance going from the point \(x\)
+in direction \(\Theta\), \(L_e(x \to \Theta) \) is the self-emitted
+radiance from the point \(x\) in direction \(\Theta\), \(f_r(x,\Psi
+\to \Theta)\) is the Bidirectional Reflectance Distribution Function
+(BRDF) which tells how much of the incoming light from direction
+\(\Psi\) to the point \(x\) is leaving in direction \(\Theta\). The
+BRDF is material-dependent and will look different for different materials.
+
+The first usable solution to this problem was proposed by Turner
+Whitted \cite{whitted} in 1980. Whitted proposed a ray-tracing scheme
+where only perfect specular reflection and refraction is
+considered. To take diffuse interactions into consideration, a local
+lighting model is used where rays are cast towards the light source
+from the ray intersection point with an object. This solves the
+problem with shadows and diffuse objects. However, this method stops
+the recursion as soon as a diffuse surface is hit and thus does not
+take diffuse interreflections into consideration.
+
+This first section is an introduction to the problem and different
+solutions proposed. In the next chapter Monte Carlo raytracing will be
+discussed more in detail, and details of our implementation will be
+presented. In chapter \ref{ch:results} results from the implementation
+is presented and discussed. Discussion and outlook is presented in chapter \ref{ch:discussion}. 
+
+\chapter{Background}
+
+\chapter{Results and benchmarks}
+\label{ch:results}
+
+
+\chapter{Discussion}
+\label{ch:discussion}
+
+
+% References
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
