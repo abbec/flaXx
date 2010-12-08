@@ -18,7 +18,7 @@ flaXx::Scene::Scene() :
 
 	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 5.0),
 															Vector3f(0.0, -1.0, 0.0),
-															Vector3f(1.0, 0.5, 1.0),
+															Vector3f(1.0, 1.0, 1.0),
 															1.5, 1.5)));
 
 	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 29.0, 35.0),
