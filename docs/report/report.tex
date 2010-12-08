@@ -15,6 +15,9 @@
 % For URL:s
 \usepackage{url}
 
+% For subfigures
+\usepackage{subfig}
+
 \begin{document}
 
 \title{FlaXx: A Monte-Carlo (Stochastic) Ray Tracer}
@@ -238,6 +241,7 @@ wait for the render to reach the middle of the image. The middle means
 in this case the center of the image in \(x\)-direction.
 
 \section{Camera and view plane}
+\label{sec:cam}
 
 The camera is placed by default in the origin \((0, 0, 0)\) and the
 viewing direction is by default in positive \(z\)-direction. That
@@ -313,11 +317,293 @@ since the planes are essentially polygonal objects with two polygons.
 \subsection{Ray-sphere intersection}
 
 In this implementation spheres are implicit object (as opposed to
-polygonal ones) and to calculate intersection with such a sphere.
+polygonal ones) and to calculate intersection with such a sphere the
+distance \(D\) from the ray start \(R_o\) and the sphere center \(S_c\) is
+calculated. A parameter \(b\) is also calculated 
+
+\begin{equation}
+ b = D R_d
+ \label{eq:b}
+\end{equation}
+
+where \(R_d\) is the ray direction.
+
+After this it can be checked that \(b \geq 0\) and that \(D \leq
+radius^2\). If that is not true, the ray does not intersect the
+sphere.
+
+If the above is true though, further calculations has to be carried
+out. An additional parameter \(c\) is calculated
+
+\begin{equation}
+  c = D - b²
+\end{equation}
+
+where \(D\) is the distance calculated above and \(b\) is the
+parameter calculated in equation \ref{eq:b}.
+
+Another check can now be performed to see that \(c \leq radius^2\). If
+that is not true, there is no intersection.
+
+Otherwise the intersection point is
+
+\begin{equation}
+  d = \sqrt{radius^2 - c}
+  \label{eq:d}
+\end{equation}
+
+\begin{equation}
+  P = \left \{ 
+  \begin{array}{l l}
+    R_o + R_d *(b-d) & \quad D \geq radius^2 \\
+    R_o + R_d *(b+d) & \quad \text{otherwise} \\
+  \end{array} \right.
+\end{equation}
+
+where \(P\) is the resulting intersection point, \(R_o\) and \(R_d\)
+is the origin and direction of ray \(R\), respectively, \(b\) is the
+parameter calculated in equation \ref{eq:b} and \(d\) is the parameter
+calculated in equation \ref{eq:d}.
+
+In the current implementation light sources are deliberately excluded
+from the intersection tests. This was done because the ability to have
+objects represent light sources was wanted. Future improvements are
+needed to make this work in a good way though. This will be discussed more in
+chapter \ref{ch:discussion}.
+
+\section{BRDF and materials}
+
+Materials are implemented as separate object and every material
+inheriting from the base material has to have a BRDF function telling
+what color the object shall have in a specific point given incoming
+and outgoing direction. Currently a Lambert and a modified Blinn-Phong
+BRDF are implemented. Some experimenting with a Cook-Torrance shader
+was also done but was put on the to-do-list.
+
+Each material also has a color and if refractive properties are set
+for the material, the refractive index has to be set.
+
+The diffuse \(k_d\) and specular \(k_s\) components of the material
+has in this implementation to always sum up to at most 1, since a
+material with \(k_d = 0\) and \(k_s = 1\) is considered to be a
+perfectly specular material. 
+
+\section{Direct illumination calculation}
+
+After an intersection point has been found the direct illumination
+contribution to that point is calculated. This is done by casting
+multiple shadow rays towards the light source. If more than one light
+source exist in the scene, one of the light sources are picked
+uniformly with a random number. 
+
+After the light source has been picked, a point on its surface is
+sampled (in the case it is an area light source). This is also done uniformly.
+
+The Monte Carlo estimator for direct illumination then becomes
+
+\begin{equation}
+  \langle L_{direct}(x \to \Theta) \rangle = \frac{N_L}{N}\sum^N_{i=1}
+  A_{L_k}L_e(y_i \to \vec{y_ix})f_r(x,\Theta \leftrightarrow
+  \vec{xy_i})G(x,y_i)V(x,y_i)
+  \label{eq:direst}
+\end{equation}
+
+where \(N_L\) is the number of light sources, \(A_{L_k}\) is the area
+of the light source, \(L_e\) is the emittance of the light source,
+\(f_r\) is the BRDF of the surface, \(G\) is the geometry term and \(V\) is the
+visibility term.
+
+\(V\) and \(G\) are then left to be calculated. \(V\) is a boolean
+term telling if the light source point \(y_i\) is visible from the
+object point \(x\). If the light source point is visible \(V = 1\)
+otherwise it is \(0\).
+
+The geometry term \(G\) takes the geometric relation between point
+\(x\) on the object and point \(y_i\) on the light source. It is
+expressed as
+
+\begin{equation}
+  G(x,y_i) = \frac{(N_x \cdot \Psi)({N_Y}_i \cdot -\Psi)}{{r^2_{xy}}_i}
+  \label{eq:geometry}
+\end{equation}
+
+where \(N_x\) is the normal at point \(x\), \(\Psi\) is the vector
+between point \(x\) and \(y_i\), \({N_y}_i\) is the normal at point
+\({N_y}_i\) and \({r^2_{xy}}_i\) is the square of the distance between
+point \(x\) and \(y_i\).
+
+After calculation of visibility and geometry everything needed for
+calculating the direct illumination at point \(x\) is known. The
+direct illumination is then added to the total estimated radiance.
+
+The algorithm is then repeated for the number of shadow rays decided
+by the user of the software.
+
+\section{Indirect illumination}
+
+The next step in estimating the radiance is to evaluate the indirect
+illumination at the intersection point \(x\). This is done by
+evaluating the hemispherical integral in the rendering equation
+(\ref{eq:renderingeq}). A Monte Carlo scheme is applied to this
+integral since it is clear that no exact solution to this integral can
+be achieved. 
+
+A recursive nature can be seen in the equation (\ref{eq:renderingeq})
+and therefore a recursive algorithm suits well to solve the
+equation. Russian roulette is used to determine the event at each
+intersection point. The specular (\(k_s\)) and diffuse (\(k_d\)) components are summed up
+to represent the local hemispherical reflectance. A uniform random
+number is then generated and if the number is smaller than (\(k_d\)), a
+diffuse reflection takes place. If the random number is larger than
+ (\(k_d\)) but smaller than (\(k_s+k_d\)) a specular reflection or
+ refraction takes place, depending on the reflective and refractive
+ parts of the material. If the generated random number does not
+ fulfill any of these two criteria, the ray is considered to be
+ absorbed and the recursion is stopped. This imposes the condition
+ that \(k_s+k_d \leq 1\). 
+
+Directions on the hemisphere are sampled. In this
+implementation importance sampling is done according to the following sections.
+
+\subsection{Diffuse reflections}
+For diffuse surfaces a cosine lobe around the normal in the point
+\(x\) is used to spawn rays. The PDF for such a distribution of rays
+is 
+
+\begin{equation}
+  p(\Theta) = \frac{n+1}{2\pi}\cos^n{\theta}
+  \label{eq:cosnormal}
+\end{equation}
+
+where \(\theta\) is the incoming angle and \(n\) is a number between 0
+and 1 to control the width of the cosine lobe. \(n=0\) gives a uniform
+distribution around the whole hemisphere.
+
+To sample directions according to equation \ref{eq:cosnormal} these
+relations are used
+
+\begin{align}
+  \varphi &= 2 \pi r_1 \nonumber \\
+  \theta &= \cos^{-1}(r_2^{\frac{1}{n+1}})
+\end{align}
+
+where \(r_1\) and \(r_2\) are two uniform random numbers and
+\(varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
+directions are then rotated to match the normal direction at \(x\).
+
+\subsection{Specular reflections}
+
+In the implementation, a specular component of 1 is considered to be a
+perfect specular object and therefore a linear interpolation between a
+sampled direction and the perfect reflection direction is made.
+
+The interpolation can be described as
+
+\begin{equation}
+  D = k_sD_p + (1-k_s)D_s
+\end{equation}
+
+where \(D\) is the final direction, \(k_s\) is the specular
+component of the material, \(D_p\) is the perfect specular reflection
+direction and \(D_s\) is the sampled direction according to the
+sampling scheme in equation \ref{eq:cossolid}.
+
+The sampled direction is obtained by a cosine lobe around the perfect
+reflection direction. The PDF for this sampling is
+
+\begin{equation}
+  p(\Theta) = \frac{\cos{\theta}}{\pi}
+\end{equation}
+
+where \(\theta\) is the incoming angle. To sample according to this
+PDF equation \ref{eq:cossolid} can be used.
+
+\begin{align}
+  \varphi &= 2 \pi r_1 \nonumber \\
+  \theta &= \cos^{-1}(\sqrt{r_2})
+  \label{eq:cossolid}
+\end{align}
+
+where \(r_1\) and \(r_2\) are two uniform random numbers and
+\(varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
+directions are then rotated to match the perfect reflection direction
+at \(x\).
+
+\subsection{Specular refractions}
+
+Russian roulette is used to determine the type of event at point \(x\)
+so if the object is specular, the type of action (reflection or
+refraction) is determined by comparing a uniform random number with
+the transmission coefficient of the material. If the random number is
+smaller, a refracted ray is constructed in exactly the same way as is
+the case with specular reflections described in the section above.
+
+However, the refracted direction is calculated according to Snells law
+and before determining the event at point \(x\), a check to see if the
+ray comes from inside or outside the object is made. If the ray comes
+from the inside, a refracted ray out from the object is always
+spawned.
+
+When handling refractions, nothing can be assumed about the
+transparent side of the BRDF so in this implementation a simple
+constant is used as BSSDF.
+
+\subsection{Recursive evaluation}
+
+The radiance at point \(x\) is then calculated by shooting a ray in
+the sampled direction and apply the same scheme there. The Russian
+roulette scheme described above is used to determine the action in
+each point. The number of sampled rays launched at each point is
+pre-determined and this creates a recursive tree for indirect illumination.
+
+\section{Setting the final color}
+
+The indirect and direct illumination are summed together and is
+then normalized linearly. SDL (\url{libsdl.org}) is used for
+displaying a window and for saving the image to a png-file. After
+normalization, values are set for the two SDL-surfaces. Then the
+algorithm proceeds with the next viewing ray.
 
 \chapter{Results and benchmarks}
 \label{ch:results}
 
+\section{Aliasing}
+
+To get rid of aliasing effects in the image, jittered sampling is used
+as described in section \ref{sec:cam}.
+
+\begin{figure}
+  \centering
+  \subfloat[Without
+  anti-aliasing]{\label{fig:alias}\includegraphics[width=8cm]{figures/500vr}}                
+  \subfloat[With anti-aliasing]{\label{fig:aalias}\includegraphics[width=8cm]{figures/aa}}
+  \caption{Anti aliasing vs Aliasing}
+  \label{fig:aliasingcomp}
+\end{figure}
+
+The left image (\ref{fig:alias}) shows an image
+without jittered sampling just shooting multiple rays through the
+center of the pixel while the right image (\ref{fig:aalias}) shows an image where
+jittered sampling is used. In figure (\ref{fig:alias}) the aliasing
+effects can clearly be seen in the jagged edges in object boundaries
+but can also clearly be seen where the walls meet the floor. This is
+natural since the rays shot through the pixel always intersects with
+the scene in the same way. 
+
+When jittered sampling is used, the aliasing effects is
+diminished. Both images in figure \ref{fig:aliasingcomp} have been
+produced with 500 viewing rays. The problem with jittered sampling
+though is that it uses \(N^2\) samples in the jitter. A possible
+improvement to this could be to use N-rooks that only needs to use
+\(N\) samples to achieve the same result. However this would result in
+fewer indirect rays at each point and thus a less accurate solution to
+the rendering equation.
+
+\section{Obtaining an accurate solution}
+
+\section{Varying lights}
+
+\section{Rendering speed}
 
 \chapter{Discussion}
 \label{ch:discussion}
@@ -328,3 +614,5 @@ polygonal ones) and to calculate intersection with such a sphere.
 \bibliography{refs}
 
 \end{document}
+
+Maybe we should cite total compendium?

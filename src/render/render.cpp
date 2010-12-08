@@ -334,7 +334,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	}
 
 	// Normalize with the number of shadowrays
-	estimatedRadiance = estimatedRadiance/double(nd);
+	estimatedRadiance = scene.getNumLights()*estimatedRadiance/double(nd);
 
 	return estimatedRadiance;
 }
