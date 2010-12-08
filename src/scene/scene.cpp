@@ -18,7 +18,7 @@ flaXx::Scene::Scene() :
 
 	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 5.0),
 															Vector3f(0.0, -1.0, 0.0),
-															Vector3f(1.0, 1.0, 1.0),
+															Vector3f(1.0, 0.5, 1.0),
 															1.5, 1.5)));
 
 	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 29.0, 35.0),
@@ -53,7 +53,7 @@ flaXx::Scene::Scene() :
 	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c2, c4, c6, wall_mtrl1)));
 
 	// Floor
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c7, c6, c4, c3, wall_mtrl2)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c7, c6, c4, c3, wall_mtrl1)));
 
 	// Roof
 	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c8, c1, c2, c5, wall_mtrl3)));
@@ -74,7 +74,7 @@ flaXx::Scene::Scene() :
 
 	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 0.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.7, 2000, 100));
 
-	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-8.0, 0.0, 15.0), 3.0, sphere_mtrl3)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -7.0, 15.0), 3.0, sphere_mtrl3)));
 
 	std::cout << " Done!" << std::endl;
 

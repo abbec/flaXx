@@ -7,29 +7,20 @@ namespace flaXx
 class Ray
 {
   public:
-	
-	Ray() : weight(1.0) {}
 
-	Ray(Vector3f s, Vector3f d, Vector3f c, float w) : start(s),
-													   direction(d), color(c), weight(w) {}
+	Ray() {}
+
+	Ray(Vector3f s, Vector3f d) : start(s), direction(d) {}
 
 	Vector3f getStart() const { return start; }
 	void setStart(Vector3f s) { start = s; }
 	
 	Vector3f getDirection() const { return direction; }
 	void setDirection(Vector3f d) { direction = d; }
-	
-	Vector3f getColor() const { return color; }
-	void setColor(Vector3f c) { color = c; }
-
-	double getWeight() const { return weight; }
-	void setWeight(double w) { weight = w; }
 
   private:
 	Vector3f start;
 	Vector3f direction;
-	Vector3f color;
-	double weight;
 };
 
 } // end namespace flaXx

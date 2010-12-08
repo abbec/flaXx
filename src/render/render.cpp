@@ -97,11 +97,9 @@ void Render::render()
 						double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
 						double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
 
-						if (x == 0 && y == 0)
-							std::cout << "pixelX: " << pixelX << ", pixelY: " << pixelY << std::endl;
 						// Shoot a ray through the pixel and trace
 						// it through the scene.*/
-						Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
+						Ray r(scene.getCameraPosition(), Vector3f(pixelX, pixelY, pixelCoord.getZ()).normalize());
 						radiance += traceRay(r);
 					}
 				}
@@ -431,7 +429,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 		if (cont)
 		{
 			// If some kind of reflection happened, trace the ray
-			Ray sampledDir(x + psi*0.01, psi, Vector3f(1.0), 1.0/nRays);
+			Ray sampledDir(x + psi*0.01, psi);
 			mpsi = -psi;
 
 			Scene::ShootReturn rt = scene.shootRay(sampledDir);

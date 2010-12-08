@@ -12,6 +12,9 @@
 % Correct input encoding
 \usepackage[utf8x]{inputenc}
 
+% For URL:s
+\usepackage{url}
+
 \begin{document}
 
 \title{FlaXx: A Monte-Carlo (Stochastic) Ray Tracer}
@@ -48,23 +51,269 @@ radiance from the point \(x\) in direction \(\Theta\), \(f_r(x,\Psi
 \(\Psi\) to the point \(x\) is leaving in direction \(\Theta\). The
 BRDF is material-dependent and will look different for different materials.
 
+\subsection{Whitted Ray tracing}
+
 The first usable solution to this problem was proposed by Turner
 Whitted \cite{whitted} in 1980. Whitted proposed a ray-tracing scheme
 where only perfect specular reflection and refraction is
-considered. To take diffuse interactions into consideration, a local
+considered. This means that in each intersection point, one reflected
+and one refracted ray are spawned. This results in a recursive
+solution to the rendering equation (\ref{eq:renderingeq}). To take
+diffuse interactions into consideration, a local
 lighting model is used where rays are cast towards the light source
 from the ray intersection point with an object. This solves the
 problem with shadows and diffuse objects. However, this method stops
 the recursion as soon as a diffuse surface is hit and thus does not
 take diffuse interreflections into consideration.
 
-This first section is an introduction to the problem and different
+\subsection{Radiosity}
+
+Another method that takes diffuse interreflections into consideration
+is the radiosity method, proposed by Goral et al. \cite{goral}. The
+radiosity method divides the scene into patches and a set of equations
+is set up, based on the conservation of light energy. The light transport
+between these patches are then calculated. Every patch in the
+environment gets reflected light from all other patches in the
+scene. A patch can also emit light if it is a light source. This is
+represented by the radiosity formula.
+
+\begin{equation}
+  B_i = E_i + R_i\sum^n_{j=1}B_jF_{ij}
+  \label{eq:radiosity}
+\end{equation}
+
+In this equation (\ref{eq:radiosity}), \(B_i\) is the radiosity for
+patch \(i\), \(E_i\) is the energy emitted from the same patch,
+\(R_i\) is the reflectivity of the patch and the sum is a sum over all
+the other patches radiosity \(B_j\), weighted by the form factor
+between patch \(i\) and \(j\), \(F_{ij}\). Equation \ref{eq:radiosity}
+exists for every patch present in the scene and therefore the solution
+to this equation becomes the solution of a set of \(n\) simultaneous equations.
+
+The form factors, as stated above, take the geometric relation between
+two patches into consideration. It can be noted that \(F_{ii} = 0 \)
+for a plane and convex surface. In words, the calculation of the form
+factors can be expressed as
+
+\begin{equation}
+  F_{ij} = \frac{\text{Radiative energy leaving surface } A_i \text{ that
+    strikes } A_j \text{ directly}}{\text{Radiative energy leaving
+    surface } A_i \text{in all directions in the hemispherical space
+    surrounding } A_i}
+\end{equation}.
+
+\subsection{Monte Carlo ray tracing}
+
+This method is also called stochastic ray tracing. Essentially it is
+an application of Monte Carlo integration methods in 3D computer
+graphics. Instead of just considering one reflected and one refracted
+ray in intersections as is the case with Whitted ray tracing, many
+rays are considered (sampled). The same method for shadows and direct
+illumination is used where shadow rays are shot towards the
+lightsource to determine visibility (shadows) and illumination. The
+indirect illumination scheme is quite different from the Whitted
+scheme, though. When a ray intersects a surface in the scene, the
+material properties are considered and according to that multiple rays
+are cast. The most important directions for the final image have a
+higher probability of being sampled. This is in Monte Carlo methods
+known as importance sampling, which simply means that more important
+directions are sampled more frequently in a ray tracer. This yields a
+lower variance meaning that the method will converge to an accurate
+solution of the equation faster.
+
+Monte Carlo integration techniques rely on the relation saying that the expectation value
+of an estimator is exactly the value of the integral.
+
+If we have an integral \(I\), the estimator \(\langle I \rangle\) is
+
+\begin{equation}
+  \langle I \rangle = \frac{1}{N}\sum^N_{i=1}\frac{f(x_i)}{p(x_i)}.
+  \label{eq:estimator}
+\end{equation}
+
+It can be shown that 
+
+\begin{equation}
+  E[\langle I \rangle] = I
+\end{equation}
+
+where \(I\) is the integral to be estimated.
+
+This shows that the more samples used in the estimator, the more
+accurate is the estimation of I.
+
+Since ray tracing is a recursive procedure, the tracing has to be
+stopped at some point. If this is done by limiting the recursive depth
+to a constant number, the image will be biased and there will be
+visible effects in the final image. Instead a stopping condition
+called Russian roulette is used. This means that in each ray
+intersection there is a certain probability for the evaluation to
+stop. This way, the recursive depth can depend on for instance the
+local hemispherical reflectance of the surface hit by a ray. Russian
+roulette will produce an unbiased image.
+
+To get rid of aliasing effect and to further lower the variance, many
+rays are shot into the scene per pixel. In this way the need for
+spawning many rays at each intersection point diminishes and therefore
+few rays are spawned at the intersection point and instead more
+viewing rays are used. With stochastic (Monte Carlo) raytracing it is
+hard to model caustic effects though but this can be done with another
+global illumination method called photon mapping.
+
+\subsection{Photon mapping}
+
+Photon mapping was proposed as a global illumination algorithm by
+Henrik Wann Jensen \cite{jensen} in 1996. Rays from the light source
+and from the camera are traced independently and then combined in a
+second step to produce a radiance estimate. This makes it possible to
+simulate reflection and refraction in a better way, taking caustics
+into consideration. Photon mapping is a ``biased'' algorithm meaning
+that more passes of the algorithm will not give a more accurate
+solution. Using more photons will however give a more correct solution.
+
+The first pass in the algorithm is creating the photon maps. Photons
+are sent out from the light sources and when the photon intersects an
+object in the scene, the intersection point and the incoming direction
+is stored in a cache called the photon map. After this, Russian
+roulette (see above) is used to evaluate the next action for the
+photon: absorption, transmission or reflection. The photon map is
+typically stored in a kd-tree for fast nearest neighbor searching. The
+map is then stored for later use.
+
+The second pass is a ray tracing pass where a ray is shot from the
+camera and then an intersection point is found. Direct illumination in
+this point is evaluated with the same scheme as in the above ray
+tracing algorithms. For indirect illumination however, the photon map
+is used. Specular reflection is handled well by standard ray tracers
+and is therefore done by the ray tracing algorithm. For soft indirect
+illumination, the global photon map is used. For caustics, the other
+photon map, called the caustic photon map is used.
+
+In order to calculate surface radiance at an intersection point, one
+of the cached photon maps is used. The steps are:
+
+\begin{enumerate}
+\item{Gather the N nearest photons using the nearest neighbor search function on the photon map.}
+\item{Let S be the sphere that contains these N photons.}
+\item {For each photon, divide the amount of flux (real photons) that
+    the photon represents by the area of S and multiply by the BRDF applied to that photon.}
+\item{The sum of those results for each photon represents total
+    surface radiance returned by the surface intersection in the
+    direction of the ray that struck it.}
+\end{enumerate}
+
+\section{Introduction}
+This first section is an introduction to the global illumination problem and different
 solutions proposed. In the next chapter Monte Carlo raytracing will be
 discussed more in detail, and details of our implementation will be
 presented. In chapter \ref{ch:results} results from the implementation
 is presented and discussed. Discussion and outlook is presented in chapter \ref{ch:discussion}. 
 
 \chapter{Background}
+
+A Monte Carlo ray tracer has been implemented in C++ and here the
+implementation details will be presented. The algorithm will be
+described in the order it runs. That is, first the camera and the view
+plane is described, then ray-surface intersections and after that the
+calculation of direct and indirect illumination in a given
+intersection point.
+
+\section{Setting up the render}
+
+The first thing is to create a render object which will hold and
+gather all information regarding the render. This is created with
+options from the command line provided by a user. The number of
+viewing rays, number of shadow rays, number of indirect rays, image
+dimensions etc. can be specified. The render object also creates an
+image plane object which is responsible for providing world
+coordinates for a pixel and for dividing the image into a number of
+tiles to be rendered.
+
+The pixels in the image are divided into ten tiles in \(x\)-direction and
+a corresponding number to have the tiles quadratic, in
+\(y\)-direction. The tiles closest to the middle of the image are
+selected for rendering first, since the middle of the image are in
+most cases the most interesting. This way there is no need to sit and
+wait for the render to reach the middle of the image. The middle means
+in this case the center of the image in \(x\)-direction.
+
+\section{Camera and view plane}
+
+The camera is placed by default in the origin \((0, 0, 0)\) and the
+viewing direction is by default in positive \(z\)-direction. That
+means that positive \(Z\) is into the screen. The view plane is
+defined to have a width that can be varied by varying the field of
+view for the camera. The camera also has a depth of field setting that
+can be varied to achieve different depth field effects \footnote{Not
+  currently implemented}.
+
+Multiple rays can be shot through each pixel and stratified sampling
+is used to avoid clamping of samples in the pixel. The pixel is
+subdivided into the nearest even square number of the number of
+viewing rays requested. For example, if 1000 viewing rays are
+requested, the pixel is subdivided into \(\lceil \sqrt{1000}
+\rceil^2 = 1024 \) subpixels. A ray is then shot through a jittered
+center point of the sub-pixel. This gives a result as in figure. %REF
+
+
+\section{Intersection tests}
+
+The scenes in this implementation consists of spheres, planes and
+polygonal objects \footnote{Planned}. Intersections between rays and
+these object has to be carried out.
+
+\subsection{Ray-triangle intersection}
+
+To check if a ray intersects a triangle has to be done for both planes
+(which consists of two triangles) and for polygonal objects. These
+tests are done with barycentric coordinates \cite{pointTest:10}. First, a point on the ray
+is projected onto the same plane as the triangle lies in:
+
+\begin{equation}
+  P = R_o - R_d\frac{(R_o-v_1) \cdot N}{R_d \cdot N}
+  \label{eq:planeproj}
+\end{equation}
+
+where \(P\) is the resulting point, \(R_o\) is the origin of the ray
+\(R\), \(R_d\) is the direction of the same ray, \(v_1\) is the first
+vertex on the triangle and \(N\) is the normal of the triangle.
+
+After this the sides of the triangle is parametrized into \(u\) and
+\(v\). To do this, intermediate vectors \(i_1\), \(i_2\) and \(i_3\)
+are created as follows:
+
+\begin{align}
+  i_1 &= v_2 - v_1 \nonumber \\
+  i_2 &= v_3 - v_1 \nonumber \\
+  i_3 &= P - v_1
+  \label{eq:intermediate}
+\end{align}
+
+where \(v_i\) is vertex point \(i\) on the triangle and \(P\) is the point calculated
+in equation \ref{eq:planeproj}. Now \(u\) and \(v\) can be calculated:
+
+\begin{align}
+  u &= \frac{(i_2 \cdot i_2)(i_1 \cdot i_3) - (i_1 \cdot i_2)(i_2
+    \cdot i_3)}{(i_1 \cdot i_1)(i_2 \cdot i_2) - (i_1 \cdot i_2)(i_1
+    \cdot i_2)} \nonumber \\
+  v &= \frac{(i_1 \cdot i_1)(i_2 \cdot i_3) - (i_1 \cdot i_2)(i_1
+    \cdot i_3)}{(i_1 \cdot i_1)(i_2 \cdot i_2) - (i_1 \cdot i_2)(i_1
+    \cdot i_2)}.
+  \label{eq:uandv}
+\end{align}
+
+After calculation \(u\) and \(v\) the only thing left is to check that
+\(u,v \geq 0\) and that \(u+v \leq 1\). If that is the case, the ray
+is intersecting the sphere. A situation where this holds is
+illustrated in figure %\ref{fig:pointintriangle}.
+
+For planes, this test has to be done for both triangles in the plane
+since the planes are essentially polygonal objects with two polygons.
+
+\subsection{Ray-sphere intersection}
+
+In this implementation spheres are implicit object (as opposed to
+polygonal ones) and to calculate intersection with such a sphere.
 
 \chapter{Results and benchmarks}
 \label{ch:results}
@@ -75,7 +324,7 @@ is presented and discussed. Discussion and outlook is presented in chapter \ref{
 
 
 % References
-\bibliographystyle{plain}
+\bibliographystyle{ieeetr}
 \bibliography{refs}
 
 \end{document}

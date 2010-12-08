@@ -47,10 +47,10 @@ int main()
 	Plane p(downLeft, downRight, upRight, upLeft, std::tr1::shared_ptr<Material>());
 
 	// En ray som skär
-	Ray is(Vector3f(0.0), Vector3f(-0.5, 0.0, 1.0), Vector3f(1.0), 1.0);
+	Ray is(Vector3f(0.0), Vector3f(-0.5, 0.0, 1.0));
 
 	// En som inte gör det
-	//Ray nis(Vector3f(0.0, 0.0, 14.1), Vector3f(0.0, 0.0, 1.0), Vector3f(1.0), 1.0);
+	//Ray nis(Vector3f(0.0, 0.0, 14.1), Vector3f(0.0, 0.0, 1.0));
 
 	Vector3f x = s.intersect(is);
 
