@@ -1,5 +1,6 @@
 #include "scene/scene.h"
 #include <limits>
+#include <cstdlib>
 #include "object/cooktorrance.h"
 #include "object/blinnphong.h"
 
@@ -8,11 +9,11 @@ flaXx::Scene::Scene() :
 	lights(new std::vector<std::tr1::shared_ptr<Light> >()),
 	objects(new std::list<std::tr1::shared_ptr<Object> >())
 {
-	// Skapa standardobjekt i scenen
+	// Create default scene
 	std::cout << "Construcing example scene.";
 
 
-	// En arealampa
+	// Two area lights
 	lights->reserve(2);
 
 	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 5.0),
@@ -20,67 +21,60 @@ flaXx::Scene::Scene() :
 															Vector3f(1.0, 1.0, 1.0),
 															1.5, 1.5)));
 
-	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 19.0, 35.0),
+	lights->push_back(std::tr1::shared_ptr<Light> (new Light(Vector3f(0.0, 29.0, 35.0),
 															Vector3f(0.0, -1.0, 0.0),
 															Vector3f(1.0, 1.0, 1.0),
 															1.5, 1.5)));
 	
 
-	// Fyra plan (rummet)
+	// Eight Corners
+	Vector3f c1(-40.0, 30.0, 0.0);
+	Vector3f c2(0.0, 30.0, 40.0);
+	Vector3f c3(-40.0, -10.0, 0.0);
+	Vector3f c4(0.0, -10.0, 40.0);
 
-	// Åtta Hörn
-	Vector3f c1(-20.0, -20.0, 0.0);
-	Vector3f c2(-20.0, -20.0, 40.0);
-	Vector3f c3(-20.0, 20.0, 40.0);
-	Vector3f c4(-20.0, 20.0, 0.0);
+	Vector3f c5(40.0, 30.0, 0.0);
+	Vector3f c6(40.0, -10.0, 0.0);
 
-	Vector3f c5(20.0, -20.0, 40.0);
-	Vector3f c6(20.0, 20.0, 40.0);
-
-	Vector3f c7(20.0, -20.0, 0.0);
-	Vector3f c8(20.0, 20.0, 0.0);
+	Vector3f c7(0.0, -10.0, 0.0);
+	Vector3f c8(0.0, 30.0, 0.0);
 
 	std::cout << ".";
 
-	// Material för väggen
-	std::tr1::shared_ptr<Material> wall_mtrl(new DiffuseMaterial(Vector3f(0.0, 0.0, 0.8), 0.8));
-	std::tr1::shared_ptr<Material> wall_mtrl1(new DiffuseMaterial(Vector3f(0.8, 0.0, 0.0), 0.8));
-	std::tr1::shared_ptr<Material> wall_mtrl2(new DiffuseMaterial(Vector3f(0.0, 0.8, 0.0), 0.8));
-	std::tr1::shared_ptr<Material> wall_mtrl3(new DiffuseMaterial(Vector3f(0.8, 0.8, 0.8), 0.8));
-	// Vänstra väggen
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c2, c3, c4, wall_mtrl)));
+	// Wall materials
+	std::tr1::shared_ptr<Material> wall_mtrl1(new DiffuseMaterial(Vector3f(1.0, 1.0, 1.0), 0.8));
+	std::tr1::shared_ptr<Material> wall_mtrl2(new DiffuseMaterial(Vector3f(201.0/255.0, 0.0, 137.0/255.0), 0.8));
+	std::tr1::shared_ptr<Material> wall_mtrl3(new DiffuseMaterial(Vector3f(1.0, 1.0, 1.0), 0.8));
 
-	// Bakre väggen
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c5, c6, c3, wall_mtrl1)));
+	// Left wall
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c1, c3, c4, c2, wall_mtrl1)));
 
-	// Högra väggen
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c7, c8, c6, wall_mtrl2)));
+	// Right wall
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c5, c2, c4, c6, wall_mtrl1)));
 
-	// Golvet
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c2, c1, c7, c5, wall_mtrl3)));
+	// Floor
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c7, c6, c4, c3, wall_mtrl2)));
 
-	// Taket
-	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c3, c6, c8, c4, wall_mtrl1)));
+	// Roof
+	objects->push_back(std::tr1::shared_ptr<Object> (new Plane(c8, c1, c2, c5, wall_mtrl3)));
 
 	std::cout << ".";
 
-	// Två sfärer
-	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.9, 200, 100));
-	//sphere_mtrl->setMirror(true);
+	// Object definitions
+	std::tr1::shared_ptr<Material> sphere_mtrl(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 1.0, 2000, 100));
 	sphere_mtrl->setTransmission(1.0, 0.645);
 
 
-	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(1.0, 1.0, 0.0), 0.5));
+	std::tr1::shared_ptr<Material> sphere_mtrl2(new DiffuseMaterial(Vector3f(236.0/255.0, 146/255.0, 74.0/255.0), 0.5));
 
-	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(2.0, 0.0, 25.0), 5.0, sphere_mtrl)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, 0.0, 25.0), 5.0, sphere_mtrl)));
 
-	for (int i = -15; i <= 15; i+=3)
-		objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(i, 0.0, 36.0), 1.0, sphere_mtrl2)));
+	for (int i = -10; i <= 10; i+=5)
+		objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(i*0.75, 0.0, 36.0 - abs(i)), 1.0, sphere_mtrl2)));
 
-	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.9, 200, 100));
-	sphere_mtrl3->setMirror(true);
+	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 0.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.7, 2000, 100));
 
-	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-5.0, -10.0, 20.0), 5.0, sphere_mtrl3)));
+	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(-8.0, 0.0, 15.0), 3.0, sphere_mtrl3)));
 
 	std::cout << " Done!" << std::endl;
 
@@ -96,8 +90,7 @@ flaXx::Scene::Scene() :
 flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 {
 
-	// Gå igenom alla objekt och undersök
-	// kollision.
+	// Traverse all objects and test intersection
 	Vector3f intersectionPoint, nearestPoint;
 	std::tr1::shared_ptr<Object> currObj;
 	double distance, shortestDistance = std::numeric_limits<double>::max();
@@ -110,7 +103,7 @@ flaXx::Scene::ShootReturn flaXx::Scene::shootRay(flaXx::Ray &r)
 		{
 			distance = (intersectionPoint - r.getStart()).squareNorm();
 
-			// BSP-träd eller nåt för detta kanske? :)
+			// TODO: BSP tree or something like it :)
 			if (distance < shortestDistance)
 			{
 				shortestDistance = distance;

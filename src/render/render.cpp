@@ -96,6 +96,9 @@ void Render::render()
 
 						double pixelX = pixelCoord.getX() + j*pixWidth*jitterx;
 						double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
+
+						if (x == 0 && y == 0)
+							std::cout << "pixelX: " << pixelX << ", pixelY: " << pixelY << std::endl;
 						// Shoot a ray through the pixel and trace
 						// it through the scene.*/
 						Ray r(scene.getCameraPosition(), pixelCoord, Vector3f(1.0, 1.0, 1.0) ,1);
@@ -385,18 +388,25 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 				//std::cout << "Specular" << std::endl;
 				// Perfect reflection direction
 				Vector3f reflectionDir = (mtheta - 2.0*(mtheta*Nx)*Nx).normalize();
-			
-				if (currentObject->getMaterial()->isMirror()) // Perfect specular reflection
-					psi = reflectionDir;
-				else if (alpha < currentObject->getMaterial()->getTransmission())
+				double spec = currentObject->getMaterial()->getSpecular();
+
+				if (alpha < currentObject->getMaterial()->getTransmission())
 				{
 					double eta = currentObject->getMaterial()->getEta();
-					psi = refract(Nx, mtheta, eta);
+					Vector3f refractionDir = refract(Nx, mtheta, eta);
+
+					// Interpolate between perfect refraction and sampled direction.
+					// This is done so that 1.0 in specular index means a perfect specular object.
+					psi = ((1.0-spec)*getSpecularRay(refractionDir, spec) + spec*refractionDir).normalize();
 
 					refr = true;
 				}
 				else
-					psi = getSpecularRay(reflectionDir, currentObject->getMaterial()->getSpecular());
+				{
+					// Interpolate between perfect reflection and sampled direction.
+					// This is done so that 1.0 in specular index means a perfect specular object.
+					psi = ((1.0-spec)*getSpecularRay(reflectionDir, spec) + spec*reflectionDir).normalize();
+				}
 
 				cont = true;
 			}
@@ -435,6 +445,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 				
 				Vector3f brdf;
 
+				// We can not assume anything about the transparent side of the BRDF
 				if (refr)
 					brdf = Vector3f(1.0);
 				else

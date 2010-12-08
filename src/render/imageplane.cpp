@@ -16,7 +16,7 @@ flaXx::ImagePlane::ImagePlane(double _fov, unsigned int _width, unsigned int _he
 
 flaXx::Vector3f flaXx::ImagePlane::getPixelCoord(unsigned int x, unsigned int y) const
 {
-	return flaXx::Vector3f(x1 + x*dx, y1 + y*dy, 2.5);
+	return flaXx::Vector3f(x1 + x*dx, y1 + y*dy, 2.0);
 }
 
 unsigned int flaXx::ImagePlane::getTile()
