@@ -61,6 +61,9 @@ void Render::render()
 
 	double pixWidth, pixHeight;
 
+	// Start the rendering time
+	time_t start = clock();
+
 	while (!image->isFinished())
 	{
 		tileNum = image->getTile();
@@ -146,6 +149,9 @@ void Render::render()
 		image->setFinished(tileNum);
 	}
 
+	// Stop the rendering timer
+	time_t stop = clock();
+	std::cout << "Rendering time: " << static_cast<double>(stop - start) / CLOCKS_PER_SEC << " s" << std::endl;
 
 	// Tell user that rendering is finshed
 	std::cout << "Done! The rendering is finished. To exit and save the render, just close the window. " << std::endl;

@@ -20,7 +20,7 @@
 
 \begin{document}
 
-\title{FlaXx: A Monte-Carlo (Stochastic) Ray Tracer}
+\title{FlaXx: A Monte Carlo (Stochastic) Ray Tracer}
 \author{Nathalie Ek \and Albert Cervin}
 
 \maketitle
@@ -34,9 +34,10 @@ incorporated into ray tracing, producing an algorithm known as
 stochastic ray tracing. This article describes an implementation of
 such a ray tracer. It incorporates the Monte Carlo scheme both for
 sampling shadow rays and directions for indirect rays. The result is a
-computationally heavy algorithm that will for a high number of samples
-per pixel converge towards an accurate solution. Different experiments
-were carried out varying parameters for the rendering. The conclusion
+computationally heavy algorithm which will converge towards an
+accurate solution for a high number of samples
+per pixel. Different experiments
+were carried out varying render settings. The conclusion
 is that the number of viewing rays have the biggest impact on the
 final result. To achieve an even more realistic result, photon mapping
 should be implemented.
@@ -62,15 +63,15 @@ rendering equation. The hemispherical formulation of the rendering equation is
 where \(L(x \to \Theta)\) is the radiance going from the point \(x\)
 in direction \(\Theta\), \(L_e(x \to \Theta) \) is the self-emitted
 radiance from the point \(x\) in direction \(\Theta\), \(f_r(x,\Psi
-\to \Theta)\) is the Bidirectional Reflectance Distribution Function
+\to \Theta)\) is the \emph{Bidirectional Reflectance Distribution Function}
 (BRDF) which tells how much of the incoming light from direction
 \(\Psi\) to the point \(x\) is leaving in direction \(\Theta\). The
 BRDF is material-dependent and will look different for different materials.
 
 \subsection{Whitted Ray tracing}
 
-The first usable solution to this problem was proposed by Turner
-Whitted \cite{whitted} in 1980. Whitted proposed a ray-tracing scheme
+The first usable solution to this problem was proposed by \emph{Turner
+Whitted} \cite{whitted} in 1980. Whitted proposed a ray-tracing scheme
 where only perfect specular reflection and refraction is
 considered. This means that in each intersection point, one reflected
 and one refracted ray are spawned. This results in a recursive
@@ -85,7 +86,7 @@ take diffuse interreflections into consideration.
 \subsection{Radiosity}
 
 Another method that takes diffuse interreflections into consideration
-is the radiosity method, proposed by Goral et al. \cite{goral}. The
+is the radiosity method, proposed by \emph{Goral} et al. \cite{goral}. The
 radiosity method divides the scene into patches and a set of equations
 is set up, based on the conservation of light energy. The light transport
 between these patches are then calculated. Every patch in the
@@ -98,7 +99,7 @@ represented by the radiosity formula.
   \label{eq:radiosity}
 \end{equation}
 
-In this equation (\ref{eq:radiosity}), \(B_i\) is the radiosity for
+In equation \ref{eq:radiosity}, \(B_i\) is the radiosity for
 patch \(i\), \(E_i\) is the energy emitted from the same patch,
 \(R_i\) is the reflectivity of the patch and the sum is a sum over all
 the other patches radiosity \(B_j\), weighted by the form factor
@@ -121,14 +122,14 @@ factors can be expressed as
 \subsection{Monte Carlo ray tracing}
 
 This method is also called stochastic ray tracing. Essentially it is
-an application of Monte Carlo integration methods in 3D computer
+an application of \emph{Monte Carlo} integration methods in 3D computer
 graphics. Instead of just considering one reflected and one refracted
-ray in intersections as is the case with Whitted ray tracing, many
+ray in intersections as in Whitted ray tracing, many
 rays are considered (sampled). The same method for shadows and direct
 illumination is used where shadow rays are shot towards the
 light source to determine visibility (shadows) and illumination. The
-indirect illumination scheme is quite different from the Whitted
-scheme, though. When a ray intersects a surface in the scene, the
+indirect illumination scheme, though, is quite different from the Whitted
+scheme. When a ray intersects a surface in the scene, the
 material properties are considered and according to that multiple rays
 are cast. The most important directions for the final image have a
 higher probability of being sampled. This is in Monte Carlo methods
@@ -137,7 +138,7 @@ directions are sampled more frequently in a ray tracer. This yields a
 lower variance meaning that the method will converge to an accurate
 solution of the equation faster.
 
-Monte Carlo integration techniques rely on the relation saying that the expectation value
+Monte Carlo integration techniques relies on the relation saying that the expectation value
 of an estimator is exactly the value of the integral.
 
 If we have an integral \(I\), the estimator \(\langle I \rangle\) is
@@ -156,13 +157,13 @@ It can be shown that
 where \(I\) is the integral to be estimated.
 
 This shows that the more samples used in the estimator, the more
-accurate is the estimation of I.
+accurate is the estimation of \(I\).
 
 Since ray tracing is a recursive procedure, the tracing has to be
 stopped at some point. If this is done by limiting the recursive depth
 to a constant number, the image will be biased and there will be
 visible effects in the final image. Instead a stopping condition
-called Russian roulette is used. This means that in each ray
+called \emph{Russian roulette} is used. This means that in each ray
 intersection there is a certain probability for the evaluation to
 stop. This way, the recursive depth can depend on for instance the
 local hemispherical reflectance of the surface hit by a ray. Russian
@@ -173,19 +174,19 @@ rays are shot into the scene per pixel. In this way the need for
 spawning many rays at each intersection point diminishes and therefore
 few rays are spawned at the intersection point and instead more
 viewing rays are used. With stochastic (Monte Carlo) raytracing it is
-hard to model caustic effects though but this can be done with another
-global illumination method called photon mapping.
+hard to model caustic effects but this can be done with another
+global illumination method called \emph{photon mapping}.
 
 \subsection{Photon mapping}
 
 Photon mapping was proposed as a global illumination algorithm by
-Henrik Wann Jensen \cite{jensen} in 1996. Rays from the light source
+\emph{Henrik Wann Jensen} \cite{jensen} in 1996. Rays from the light source
 and from the camera are traced independently and then combined in a
 second step to produce a radiance estimate. This makes it possible to
 simulate reflection and refraction in a better way, taking caustics
 into consideration. Photon mapping is a ``biased'' algorithm meaning
 that more passes of the algorithm will not give a more accurate
-solution. Using more photons will however give a more correct solution.
+solution. However, using more photons will give a more correct solution.
 
 The first pass in the algorithm is creating the photon maps. Photons
 are sent out from the light sources and when the photon intersects an
@@ -201,8 +202,8 @@ camera and then an intersection point is found. Direct illumination in
 this point is evaluated with the same scheme as in the above ray
 tracing algorithms. For indirect illumination however, the photon map
 is used. Specular reflection is handled well by standard ray tracers
-and is therefore done by the ray tracing algorithm. For soft indirect
-illumination, the global photon map is used. For caustics, the other
+and is therefore done by the ray tracing algorithm. Soft indirect
+illumination uses the global photon map. For caustics, the other
 photon map, called the caustic photon map is used.
 
 In order to calculate surface radiance at an intersection point, one
@@ -213,15 +214,15 @@ of the cached photon maps is used. The steps are:
 \item{Let S be the sphere that contains these N photons.}
 \item {For each photon, divide the amount of flux (real photons) that
     the photon represents by the area of S and multiply by the BRDF applied to that photon.}
-\item{The sum of those results for each photon represents total
+\item{The sum of these results for each photon represents the total
     surface radiance returned by the surface intersection in the
     direction of the ray that struck it.}
 \end{enumerate}
 
 \section{Introduction}
-This first section is an introduction to the global illumination problem and different
-solutions proposed. In the next chapter Monte Carlo ray tracing will be
-discussed more in detail, and details of our implementation will be
+This first chapter is an introduction to the global illumination problem and different
+solutions proposed. In the next chapter Monte Carlo ray tracing is
+discussed more in detail, and details of our implementation are
 presented. In chapter \ref{ch:results} results from the implementation
 is presented and discussed. Discussion and outlook is presented in chapter \ref{ch:discussion}. 
 
@@ -246,7 +247,7 @@ coordinates for a pixel and for dividing the image into a number of
 tiles to be rendered. This is illustrated in figure
 \ref{fig:camera}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \includegraphics[width=10cm]{figures/2}
   \caption{Camera and image plane set-up.}
@@ -266,10 +267,10 @@ this case means the center of the image in \(x\)-direction.
 
 The camera is placed by default in the origin \((0, 0, 0)\) and the
 viewing direction is by default in positive \(z\)-direction. That
-means that positive \(Z\) is into the screen. The view plane is
+means that positive \(z\) is into the screen. The view plane is
 defined to have a width that can be varied by varying the field of
 view for the camera. The camera also has a depth of field setting that
-can be varied to achieve different depth field effects \footnote{Not
+can be varied to achieve different depth field effects\footnote{Not
   currently implemented}.
 
 Multiple rays can be shot through each pixel and stratified sampling
@@ -280,7 +281,7 @@ requested, the pixel is subdivided into \(\lceil \sqrt{1000}
 \rceil^2 = 1024 \) subpixels. A ray is then shot through a jittered
 center point of the sub-pixel. This gives a result as in figure \ref{fig:jittered}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \includegraphics[width=10cm]{figures/1}
   \caption{Stratified (jittered) sampling.}
@@ -290,7 +291,7 @@ center point of the sub-pixel. This gives a result as in figure \ref{fig:jittere
 \section{Intersection tests}
 
 The scenes in this implementation consists of spheres, planes and
-polygonal objects \footnote{Planned}. Intersections between rays and
+polygonal objects\footnote{Planned}. Intersections between rays and
 these object has to be carried out.
 
 \subsection{Ray-triangle intersection}
@@ -305,7 +306,7 @@ is projected onto the same plane as the triangle lies in:
   \label{eq:planeproj}
 \end{equation}
 
-where \(P\) is the resulting point, \(R_o\) is the origin of the ray
+\(P\) is the resulting point, \(R_o\) is the origin of the ray
 \(R\), \(R_d\) is the direction of the same ray, \(v_1\) is the first
 vertex on the triangle and \(N\) is the normal of the triangle.
 
@@ -333,12 +334,12 @@ in equation \ref{eq:planeproj}. Now \(u\) and \(v\) can be calculated:
   \label{eq:uandv}
 \end{align}
 
-After calculation \(u\) and \(v\) the only thing left is to check that
+After calculating \(u\) and \(v\) the only thing left is to check that
 \(u,v \geq 0\) and that \(u+v \leq 1\). If that is the case, the ray
 is intersecting the sphere. A situation where this holds is
 illustrated in figure \ref{fig:pointintriangle}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \includegraphics[width=7cm]{figures/3}
   \caption{A point P that is inside the triangle}
@@ -376,7 +377,7 @@ out. An additional parameter \(c\) is calculated
 where \(D\) is the distance calculated above and \(b\) is the
 parameter calculated in equation \ref{eq:b}.
 
-Another check can now be performed to see that \(c \leq radius^2\). If
+Another check can now be performed to verify that \(c \leq radius^2\). If
 that is not true, there is no intersection.
 
 Otherwise the intersection point is
@@ -402,23 +403,22 @@ calculated in equation \ref{eq:d}.
 In the current implementation light sources are deliberately excluded
 from the intersection tests. This was done because the ability to have
 objects represent light sources was wanted. Future improvements are
-needed to make this work in a good way though. This will be discussed more in
-chapter \ref{ch:discussion}.
+needed to make this work in a good way though.
 
 \section{BRDF and materials}
 
 Materials are implemented as separate object and every material
 inheriting from the base material has to have a BRDF function telling
 what color the object shall have in a specific point given incoming
-and outgoing direction. Currently a Lambert and a modified Blinn-Phong
-BRDF are implemented. Some experimenting with a Cook-Torrance shader
+and outgoing direction. Currently a \emph{Lambert} and a modified \emph{Blinn-Phong}
+BRDF are implemented. Some experimenting with a \emph{Cook-Torrance} shader
 was also done but was put on the to-do-list.
 
 Each material also has a color and if refractive properties are set
 for the material, the refractive index has to be set.
 
 The diffuse \(k_d\) and specular \(k_s\) components of the material
-has in this implementation to always sum up to at most 1, since a
+has (in this implementation) to always sum up to at most 1, since a
 material with \(k_d = 0\) and \(k_s = 1\) is considered to be a
 perfectly specular material. 
 
@@ -427,11 +427,13 @@ perfectly specular material.
 After an intersection point has been found the direct illumination
 contribution to that point is calculated. This is done by casting
 multiple shadow rays towards the light source. If more than one light
-source exist in the scene, one of the light sources are picked
+source exists in the scene, one of the light sources are picked
 uniformly with a random number. 
 
 After the light source has been picked, a point on its surface is
 sampled (in the case it is an area light source). This is also done uniformly.
+
+\pagebreak
 
 The Monte Carlo estimator for direct illumination then becomes
 
@@ -453,7 +455,7 @@ term telling if the light source point \(y_i\) is visible from the
 object point \(x\). If the light source point is visible \(V = 1\)
 otherwise it is \(0\).
 
-The geometry term \(G\) takes the geometric relation between point
+The geometry term \(G\) represents the geometric relation between point
 \(x\) on the object and point \(y_i\) on the light source. It is
 expressed as
 
@@ -471,9 +473,9 @@ After calculation of visibility and geometry everything needed for
 calculating the direct illumination at point \(x\) is known. The
 direct illumination is then added to the total estimated radiance.
 
-This scheme can be summarized by the illustration in \ref{fig:direct}.
+This scheme can be summarized by the illustration in figure \ref{fig:direct}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \includegraphics[width=10cm]{figures/4}
   \caption{Direct illumination algorithm.}
@@ -494,7 +496,7 @@ illumination at the intersection point \(x\). This is done by
 evaluating the hemispherical integral in the rendering equation
 (\ref{eq:renderingeq}). A Monte Carlo scheme is applied to this
 integral since it is clear that no exact solution to this integral can
-be achieved. The sampling schemes used are obtained from Dutré \cite{globalcomp}. 
+be achieved. The sampling schemes used are obtained from \emph{Dutré} \cite{globalcomp}. 
 
 The estimator for indirect illumination is
 
@@ -508,7 +510,7 @@ The estimator for indirect illumination is
 where \(N\) is the number of indirect rays, \(L_r\) is the reflected
 radiance, \(f_r\) is the BRDF of the surface, \(\Psi_i\) is the
 sampled hemisphere direction, \(N_x\) is the surface normal in the
-point \(x\) and \(p(\psi_i)\) is the PDF \footnote{Probability Density
+point \(x\) and \(p(\psi_i)\) is the PDF\footnote{Probability Density
 Function} used.
 
 A recursive nature can be seen in the equation (\ref{eq:renderingeq})
@@ -551,12 +553,12 @@ relations are used
 \end{align}
 
 where \(r_1\) and \(r_2\) are two uniform random numbers and
-\(varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
+\(\varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
 directions are then rotated to match the normal direction at \(x\).
 
 \subsection{Specular reflections}
 
-In the implementation, a specular component of 1 is considered to be a
+In the implementation, a specular component of 1 (\(k_s=1\)) is considered to be a
 perfect specular object and therefore a linear interpolation between a
 sampled direction and the perfect reflection direction is made.
 
@@ -588,9 +590,20 @@ PDF equation \ref{eq:cossolid} can be used.
 \end{align}
 
 where \(r_1\) and \(r_2\) are two uniform random numbers and
-\(varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
+\(\varphi\) and \(\theta\) is the sampled hemispherical coordinates. The sampled
 directions are then rotated to match the perfect reflection direction
 at \(x\).
+
+This is illustrated in figure \ref{fig:hemsample}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=10cm]{figures/6}
+  \caption{Hemisphere sampling.}
+  \label{fig:hemsample}
+\end{figure}
+
+The cosine lobe around the perfect reflection direction has been highlighted in gray in the figure.  
 
 \subsection{Specular refractions}
 
@@ -601,8 +614,8 @@ the transmission coefficient of the material. If the random number is
 smaller, a refracted ray is constructed in exactly the same way as is
 the case with specular reflections described in the section above.
 
-However, the refracted direction is calculated according to Snells law
-and before determining the event at point \(x\), a check to see if the
+However, the refracted direction is calculated according to \emph{Snells} law
+and before determining the event at point \(x\), a test to see if the
 ray comes from inside or outside the object is made. If the ray comes
 from the inside, a refracted ray out from the object is always
 spawned.
@@ -615,10 +628,20 @@ constant is used as BTDF \footnote{Bidirectional Transmittance
 \subsection{Recursive evaluation}
 
 The radiance at point \(x\) is then calculated by shooting a ray in
-the sampled direction and apply the same scheme there. The Russian
+the sampled direction and apply the same scheme at this new point. The Russian
 roulette scheme described above is used to determine the action in
 each point. The number of sampled rays launched at each point is
-pre-determined and this creates a recursive tree for indirect illumination.
+pre-determined and this creates a recursive tree for indirect
+illumination.
+
+The indirect illumination scheme can be summarized by the illustration in figure \ref{fig:indirect}.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=10cm]{figures/5}
+  \caption{Indirect illumination algorithm.}
+  \label{fig:indirect}
+\end{figure}
 
 \section{Setting the final color}
 
@@ -637,25 +660,25 @@ algorithm proceeds with the next viewing ray.
 To get rid of aliasing effects in the image, jittered sampling is used
 as described in section \ref{sec:cam}.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \subfloat[Without
   anti-aliasing]{\label{fig:alias}\includegraphics[width=8cm]{figures/500vr}}                
-  \subfloat[With anti-aliasing]{\label{fig:aalias}\includegraphics[width=8cm]{figures/aa}}
+  \subfloat[With anti-aliasing]{\label{fig:aalias}\includegraphics[width=8cm]{figures/white_light}}
   \caption{Anti-aliasing vs Aliasing}
   \label{fig:aliasingcomp}
 \end{figure}
 
-The left image (\ref{fig:alias}) shows an image
+The left image (fig. \ref{fig:alias}) shows an image
 without jittered sampling just shooting multiple rays through the
-center of the pixel while the right image (\ref{fig:aalias}) shows an image where
-jittered sampling is used. In figure (\ref{fig:alias}) the aliasing
+center of the pixel while the right image (fig. \ref{fig:aalias}) shows an image where
+jittered sampling is used. In figure \ref{fig:alias} the aliasing
 effects can clearly be seen in the jagged edges in object boundaries
 but can also clearly be seen where the walls meet the floor. This is
 natural since the rays shot through the pixel always intersects with
 the scene in the same way. 
 
-When jittered sampling is used, the aliasing effects is
+When jittered sampling is used, the aliasing effects are
 diminished. Both images in figure \ref{fig:aliasingcomp} have been
 produced with 500 viewing rays. The problem with jittered sampling
 though is that it uses \(N^2\) samples in the jitter. A possible
@@ -672,30 +695,58 @@ stochastic, noise will be present. To lower this noise and produce a
 nice image, multiple viewing rays has to be used. Averaging between
 the radiance from these rays will give a kind of low-pass filtering of
 the noise seen in images with fewer viewing rays. The more viewing
-rays used, the better will the average be.
+rays used, the better will this average be.
 
-% Figur med olika många viewing rays
+\begin{figure}[h]
+  \centering
+  \subfloat[1 viewing ray]{\label{fig:1vr}\includegraphics[width=8cm]{figures/1vr}}
+  \subfloat[10 viewing rays]{\label{fig:10vr}\includegraphics[width=8cm]{figures/10vr}}\\
+  \subfloat[100 viewing rays]{\label{fig:100vr}\includegraphics[width=8cm]{figures/100vr}}
+  \subfloat[1000 viewing rays]{\label{fig:1000vr}\includegraphics[width=8cm]{figures/white_light}}
+  \caption{Varying the number of viewing rays.}
+  \label{fig:viewrays}
+\end{figure}
+
+In figure \ref{fig:viewrays} the number of viewing rays have been
+multiplied by 10 for each image, starting with one ray in the upper
+left image (fig. \ref{fig:1vr}). The noise can
+clearly be seen and it can also be noted that as many as 1000 viewing
+rays can be required to get rid of the noise visually. Some minor
+noise can still be noted though, in the red sphere.
+
+\pagebreak
 
 \section{Direct illumination}
 
 The number of shadow rays greatly affect the shadow appearance in the
 final image. More shadow rays produce a better result.
 
-% Figur med olika många shadow rays
+\begin{figure}[h]
+  \centering
+  \subfloat[4 shadow rays]{\label{fig:4sr}\includegraphics[width=8cm]{figures/4sr}}
+  \subfloat[40 shadow rays]{\label{fig:40sr}\includegraphics[width=8cm]{figures/40sr}}\\
+  \subfloat[400 shadow rays]{\label{fig:400sr}\includegraphics[width=8cm]{figures/400sr}}
+  \caption{Varying the number of shadow rays.}
+  \label{fig:srays}
+\end{figure}
 
-In these two images it can clearly be seen that more shadow rays gives
+In figure \ref{fig:srays} it can clearly be seen that more shadow rays gives
 a smoother shadow, especially on the shadow edge. The reason for this
 is that some sampled directions from the penumbra of the shadows will
-be visible from the light source and some not. To produce a nice
-average between those, more shadow rays has to be used. 
+be visible from the light source and some will not. To produce a nice
+average between sampled directions, more shadow rays has to be
+used. In figure \ref{fig:srays} no indirect illumination has been used
+to better see the effects on varying the shadow rays. The number of
+viewing rays are also limited to one.
+
+\pagebreak
 
 \section{Varying lights}
 
 The color effects in the final image can be made clearer by changing
 the color of one of the light sources in the scene.
 
-% CHANGE THIS FIGURE
-\begin{figure}
+\begin{figure}[h]
   \centering
   \subfloat[With white lights]{\label{fig:white}\includegraphics[width=8cm]{figures/white_light}}                
   \subfloat[With one pink light]{\label{fig:pink}\includegraphics[width=8cm]{figures/pink_norm}}
@@ -714,9 +765,38 @@ This table will show rendering times for different settings running
 single-threaded to have a fair comparison even though other processes
 might be running on the computer.
 
-% Tabell med lite olika inställningar och tider
+\begin{table}[htbp]
+  \begin{center}
+    \begin{tabular}{ | c | c | }
+      \hline
+      Viewing rays & Time \\
+      \hline
+      10   & 52.13 s \\
+      100    & 4 m 56 s \\
+      200    & ? m ? s \\
+      300    & ? m ? s \\
+      400    & 19 m 32 s \\
+      500 & 25 m 45s \\
+      1000  & 50 m 2 s  \\
+      \hline
+    \end{tabular}
+    \caption{Render benchmarks (1 CPU core).}
+    \label{tab:results}
+  \end{center}
+\end{table}
 
-Table REF clearly shows the effect on rendering time of increasing the number of viewing rays.
+Table \ref{tab:results} clearly shows the effect on rendering time of increasing the
+number of viewing rays. The number of shadow ray is 4 throughout all
+cases and the number of indirect rays is limited to 1. The scene
+rendered is the scene in figures \ref{fig:srays} and
+\ref{fig:viewrays}. If some sort of curve is fitted to the measured
+times it can be seen that the curve resembles a BLA curve which gives
+an approximate time complexity of BLA where \(N\) is the number of
+viewing rays used. Other parameters can of course also be varied but
+the number of viewing rays has the greatest impact on the rendering
+time and also on the final result.
+
+\pagebreak
 
 \section{Normalization}
 
@@ -724,9 +804,9 @@ The estimators in the direct and indirect illumination algorithm
 should be normalized with the PDF of the Monte Carlo scheme. This is
 ignored though for indirect illumination since it produces some
 strange results but a difference can clearly be seen between an image
-without normalized direct illumination and one without.
+with normalized direct illumination and one without.
 
-\begin{figure}
+\begin{figure}[h]
   \centering
   \subfloat[With normalization]{\label{fig:norm}\includegraphics[width=8cm]{figures/pink_norm}}                
   \subfloat[Without normalization]{\label{fig:nnorm}\includegraphics[width=8cm]{figures/pink_nnorm}}
@@ -744,8 +824,8 @@ point on light source, is a multiplication by a constant number.
 \label{ch:discussion}
 
 Rendering an image with a raytracing algorithm can be a quite tedious
-process and we have become aware of that as can be seen in table
-REFERENCE. Since ray tracing is a view-dependent algorithm, every
+process and we have become aware of that, seen in table
+\ref{tab:results}. Since ray tracing is a view-dependent algorithm, every
 pixel is totally independent of other pixels. To improve speed,
 threading should be implemented and it
 is one of the first improvements that this ray tracer will undergo. It
@@ -757,7 +837,7 @@ improve realism, a photon mapper could be added to the ray
 tracer. This is the improvement that will probably have the biggest
 impact on the visual result.
 
-Polygonal object is an improvement to the software to be able to
+Polygonal objects is an improvement to the software to be able to
 produce more visually interesting results. This is not much work to do
 since the intersection between ray and triangles are already included.
 
@@ -767,7 +847,7 @@ not included now but will probably be included in the near future.
 
 Speed in intersection tests are another important aspect in ray
 tracing. Our idea is to implement a BSP-tree for partitioning space
-and an octree to subdivide meshes. This can be a drastic improvement
+and an octree to subdivide meshes. The octree can be a drastic improvement
 to rendering speed especially with polygonal objects containing many
 polygons. The BSP-tree is useful for not having to test intersection
 with every object in the scene but only those objects in the same
@@ -779,9 +859,9 @@ sample the actual material and lower the variance and thus the noise.
 
 The same holds for improving the soft shadows produced by the direct
 illumination stage of the algorithm. Another sampling scheme could
-have been used to lower the variance and thus the noise.
+have been used to lower the variance.
 
-Talking of noise, a better random number generator should be
+Talking of noise, a better RNG\footnote{Random Number Generator} should be
 used. Experiments with a Mersenne-Twister RNG have been carried out
 and the Mersenne-Twister RNG is actually implemented. However it did
 not produce the wanted results, probably due to incorrect usage, so it
@@ -794,7 +874,7 @@ Cook and Torrance, some new light has been shed on the problem (pardon
 the bad humor). An attempt on implementing this could be made.
 
 On the transparent side of the BRDF, we use only a constant and if the
-Cook-Torrance shader is implemented, that can instead be used for more
+Cook-Torrance shader is implemented, it can instead be used for more
 correctly representing the light transport in transparent objects.
 
 We feel very satisfied though with the results produced, since the
@@ -811,6 +891,8 @@ would have to wait for each render before getting results.
 
 We also feel that the ray tracer is extendable since the class design
 of it is well thought through.
+
+To finish things up, we wish you a Merry Christmas!
 
 % References
 \bibliographystyle{ieeetr}
