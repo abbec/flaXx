@@ -148,7 +148,7 @@ If we have an integral \(I\), the estimator \(\langle I \rangle\) is
   \label{eq:estimator}
 \end{equation}
 
-It can be shown that 
+It can be shown that
 
 \begin{equation}
   E[\langle I \rangle] = I
@@ -224,7 +224,7 @@ This first chapter is an introduction to the global illumination problem and dif
 solutions proposed. In the next chapter Monte Carlo ray tracing is
 discussed more in detail, and details of our implementation are
 presented. In chapter \ref{ch:results} results from the implementation
-is presented and discussed. Discussion and outlook is presented in chapter \ref{ch:discussion}. 
+is presented and discussed. Discussion and outlook is presented in chapter \ref{ch:discussion}.
 
 \chapter{Background}
 
@@ -354,7 +354,7 @@ since the planes are essentially polygonal objects with two polygons.
 In this implementation spheres are implicit object (as opposed to
 polygonal ones) and to calculate intersection with such a sphere the
 distance \(D\) from the ray start \(R_o\) and the sphere center \(S_c\) is
-calculated. A parameter \(b\) is also calculated 
+calculated. A parameter \(b\) is also calculated
 
 \begin{equation}
  b = D R_d
@@ -388,7 +388,7 @@ Otherwise the intersection point is
 \end{equation}
 
 \begin{equation}
-  P = \left \{ 
+  P = \left \{
   \begin{array}{l l}
     R_o + R_d *(b-d) & \quad D \geq radius^2 \\
     R_o + R_d *(b+d) & \quad \text{otherwise} \\
@@ -420,7 +420,7 @@ for the material, the refractive index has to be set.
 The diffuse \(k_d\) and specular \(k_s\) components of the material
 has (in this implementation) to always sum up to at most 1, since a
 material with \(k_d = 0\) and \(k_s = 1\) is considered to be a
-perfectly specular material. 
+perfectly specular material.
 
 \section{Direct illumination}
 
@@ -428,7 +428,7 @@ After an intersection point has been found the direct illumination
 contribution to that point is calculated. This is done by casting
 multiple shadow rays towards the light source. If more than one light
 source exists in the scene, one of the light sources are picked
-uniformly with a random number. 
+uniformly with a random number.
 
 After the light source has been picked, a point on its surface is
 sampled (in the case it is an area light source). This is also done uniformly.
@@ -496,7 +496,7 @@ illumination at the intersection point \(x\). This is done by
 evaluating the hemispherical integral in the rendering equation
 (\ref{eq:renderingeq}). A Monte Carlo scheme is applied to this
 integral since it is clear that no exact solution to this integral can
-be achieved. The sampling schemes used are obtained from \emph{Dutré} \cite{globalcomp}. 
+be achieved. The sampling schemes used are obtained from \emph{Dutré} \cite{globalcomp}.
 
 The estimator for indirect illumination is
 
@@ -525,7 +525,7 @@ diffuse reflection takes place. If the random number is larger than
  parts of the material. If the generated random number does not
  fulfill any of these two criteria, the ray is considered to be
  absorbed and the recursion is stopped. This imposes the condition
- that \(k_s+k_d \leq 1\). 
+ that \(k_s+k_d \leq 1\).
 
 Directions on the hemisphere are sampled. In this
 implementation importance sampling is done according to the following sections.
@@ -603,7 +603,7 @@ This is illustrated in figure \ref{fig:hemsample}.
   \label{fig:hemsample}
 \end{figure}
 
-The cosine lobe around the perfect reflection direction has been highlighted in gray in the figure.  
+The cosine lobe around the perfect reflection direction has been highlighted in gray in the figure.
 
 \subsection{Specular refractions}
 
@@ -663,7 +663,7 @@ as described in section \ref{sec:cam}.
 \begin{figure}[h]
   \centering
   \subfloat[Without
-  anti-aliasing]{\label{fig:alias}\includegraphics[width=8cm]{figures/500vr}}                
+  anti-aliasing]{\label{fig:alias}\includegraphics[width=8cm]{figures/500vr}}
   \subfloat[With anti-aliasing]{\label{fig:aalias}\includegraphics[width=8cm]{figures/white_light}}
   \caption{Anti-aliasing vs Aliasing}
   \label{fig:aliasingcomp}
@@ -676,7 +676,7 @@ jittered sampling is used. In figure \ref{fig:alias} the aliasing
 effects can clearly be seen in the jagged edges in object boundaries
 but can also clearly be seen where the walls meet the floor. This is
 natural since the rays shot through the pixel always intersects with
-the scene in the same way. 
+the scene in the same way.
 
 When jittered sampling is used, the aliasing effects are
 diminished. Both images in figure \ref{fig:aliasingcomp} have been
@@ -737,7 +737,7 @@ be visible from the light source and some will not. To produce a nice
 average between sampled directions, more shadow rays has to be
 used. In figure \ref{fig:srays} no indirect illumination has been used
 to better see the effects on varying the shadow rays. The number of
-viewing rays are also limited to one.
+viewing rays is also limited to one.
 
 \pagebreak
 
@@ -748,7 +748,7 @@ the color of one of the light sources in the scene.
 
 \begin{figure}[h]
   \centering
-  \subfloat[With white lights]{\label{fig:white}\includegraphics[width=8cm]{figures/white_light}}                
+  \subfloat[With white lights]{\label{fig:white}\includegraphics[width=8cm]{figures/white_light}}
   \subfloat[With one pink light]{\label{fig:pink}\includegraphics[width=8cm]{figures/pink_norm}}
   \caption{Varying light source colors}
   \label{fig:lightcolor}
@@ -773,10 +773,10 @@ might be running on the computer.
       \hline
       10   & 52.13 s \\
       100    & 4 m 56 s \\
-      200    & ? m ? s \\
-      300    & ? m ? s \\
+      200    & 11 m 5 s \\
+      300    & 15 m 55 s \\
       400    & 19 m 32 s \\
-      500 & 25 m 45s \\
+      500 & 25 m 45 s \\
       1000  & 50 m 2 s  \\
       \hline
     \end{tabular}
@@ -785,16 +785,14 @@ might be running on the computer.
   \end{center}
 \end{table}
 
-Table \ref{tab:results} clearly shows the effect on rendering time of increasing the
-number of viewing rays. The number of shadow ray is 4 throughout all
+Table \ref{tab:results} clearly shows the effect on rendering time when increasing the
+number of viewing rays. The number of shadow rays is 4 throughout all
 cases and the number of indirect rays is limited to 1. The scene
 rendered is the scene in figures \ref{fig:srays} and
-\ref{fig:viewrays}. If some sort of curve is fitted to the measured
-times it can be seen that the curve resembles a BLA curve which gives
-an approximate time complexity of BLA where \(N\) is the number of
-viewing rays used. Other parameters can of course also be varied but
-the number of viewing rays has the greatest impact on the rendering
-time and also on the final result.
+\ref{fig:viewrays}. The growth rate can be said to be approximately
+linear when plotting the resulting curve from measurements in table \ref{tab:results}. Other parameters can of
+course also be varied but the number of viewing rays has the greatest
+impact on the rendering time and also on the final result.
 
 \pagebreak
 
@@ -808,7 +806,7 @@ with normalized direct illumination and one without.
 
 \begin{figure}[h]
   \centering
-  \subfloat[With normalization]{\label{fig:norm}\includegraphics[width=8cm]{figures/pink_norm}}                
+  \subfloat[With normalization]{\label{fig:norm}\includegraphics[width=8cm]{figures/pink_norm}}
   \subfloat[Without normalization]{\label{fig:nnorm}\includegraphics[width=8cm]{figures/pink_nnorm}}
   \caption{Normalized vs. Not normalized}
   \label{fig:normcomp}
@@ -899,5 +897,3 @@ To finish things up, we wish you a Merry Christmas!
 \bibliography{refs}
 
 \end{document}
-
-Maybe we should cite total compendium?
