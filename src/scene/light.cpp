@@ -1,3 +1,21 @@
+/*
+ * flaXx
+ * Copyright (C) Albert Cervin <albert@nat0.se>, Nathalie Ek <nathalie@nat0.se> 2010
+ * 
+ * flaXx is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * flaXx is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "scene/light.h"
 #include "render/ray.h"
 
@@ -6,8 +24,7 @@ using namespace flaXx;
 
 Vector3f Light::intersect(const Ray &ray)
 {
-	// Gör för båda trianglarna i planet
-
+	// Do for both triangles in plane
 	Vector3f v1 = Vector3f(position.getX()-width/2.0, position.getY(), position.getZ()-height/2.0);
 	Vector3f v2 = Vector3f(position.getX()-width/2.0, position.getY(), position.getZ()+height/2.0);
 	Vector3f v3 = Vector3f(position.getX()+width/2.0, position.getY(), position.getZ()+height/2.0);

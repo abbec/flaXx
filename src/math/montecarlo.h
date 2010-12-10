@@ -1,3 +1,21 @@
+/*
+ * flaXx
+ * Copyright (C) Albert Cervin <albert@nat0.se>, Nathalie Ek <nathalie@nat0.se> 2010
+ * 
+ * flaXx is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * flaXx is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef MONTECARLO_H
 #define MONTECARLO_H
 
@@ -27,10 +45,10 @@ class MonteCarlo
   public:
 	MonteCarlo();
 	
-	/** Funktion som representerar en likformig fördelning  */
+	/** Function representing a uniform distribution  */
 	double uniformPdf(double, double, double);
 
-	/** Funktion som ger ett likformigt fördelat slumptal i intervallet 0..1 */
+	/** Function returning a uniform number in the interval 0..1 */
 	double getUniformNumber();
 
 	Vector3f getCosineLobeDir();

@@ -1,0 +1,37 @@
+This folder contains all the source code. 
+
+To be able to bild the source code:
+
+* cmake
+
+* libsdl development packages
+
+* libpng development packages
+
+are needed.
+
+The most important files in this implementation are:
+
+- render/render.cpp / .h
+This is the main rendering object and the main rendering loop is here.
+Most of the other important classes can be found from here.
+
+- render/imageplane.cpp / .h
+The representation of the image plane.
+
+- object/material.h
+The abstract base material. Finished implementations of this
+interface are diffuse.h / .cpp and blinnphong.h / .cpp
+
+- object/sphere.cpp / .h
+The sphere object. Intersection tests for spheres are implemented here.
+
+- object/plane.cpp / .h
+The plane object. Ray-plane intersection tests are implemented here.
+
+- scene/scene.cpp / .h
+The scene object holding the lists of lights and objects, the camera and intersection test
+traversing of the lists.
+
+math/vector3f.h / .cpp
+The implementation of three dimensional vector.

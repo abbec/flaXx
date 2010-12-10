@@ -1,3 +1,21 @@
+/*
+ * flaXx
+ * Copyright (C) Albert Cervin <albert@nat0.se>, Nathalie Ek <nathalie@nat0.se> 2010
+ * 
+ * flaXx is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * flaXx is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "object/plane.h"
 #include "render/ray.h"
 
@@ -6,14 +24,12 @@ using namespace flaXx;
 Plane::Plane (Vector3f _v1, Vector3f _v2, Vector3f _v3, Vector3f _v4, 
 			  std::tr1::shared_ptr<Material> m) : Object(m), v1(_v1), v2(_v2), v3(_v3), v4(_v4)
 {
-	// Beräkna normal för planet
+	// Calculate plane normal
 	normal = ((v2-v1).cross((v2-v3))).normalize();
 }
 
 Vector3f Plane::intersect(const Ray &ray)
 {
-	// Gör för båda trianglarna i planet
-
 	// barycentric coordinates
 	Vector3f nnormal = normal.normalize();
 	Vector3f nRayDir = ray.getDirection().normalize();
@@ -23,7 +39,7 @@ Vector3f Plane::intersect(const Ray &ray)
 
 	double distance = (-((ray.getStart()-v1)*nnormal)/(nRayDir*nnormal));
 
-	// Om avståndet är mindre än 0 kan vi fortsätta med nästa triangel
+	// If the distance is negative, we can go on with the next triangle
 	if (distance >= 0)
 	{
 		point = ray.getStart() + nRayDir*distance;
@@ -43,8 +59,8 @@ Vector3f Plane::intersect(const Ray &ray)
 		u = (dot22 * dot13 - dot12 * dot23) * invDen;
 		v = (dot11 * dot23 - dot12 * dot13) * invDen;
 		
-		// 1.0 + 1e-10 fixar ett precisions-problem
-		// med vissa processorer
+		// 1.0 + 1e-10 fixes a precision problem
+		// on some processors
 		if (u >= 0.0 && v >= 0.0 && u+v < 1.0 + 1e-10)
 			return point;
 	}
@@ -70,8 +86,8 @@ Vector3f Plane::intersect(const Ray &ray)
 		u = (dot22 * dot13 - dot12 * dot23) * invDen;
 		v = (dot11 * dot23 - dot12 * dot13) * invDen;
 
-		// 1.0 + 1e-10 fixar ett precisions-problem
-		// med vissa processorer
+		// 1.0 + 1e-10 fixes a precision problem
+		// on some processors
 		if (u >= 0.0 && v >= 0.0 && u+v < 1 + 1e-10)
 			return point;
 
