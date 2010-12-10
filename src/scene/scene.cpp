@@ -72,7 +72,7 @@ flaXx::Scene::Scene() :
 	for (int i = -10; i <= 10; i+=5)
 		objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(i*0.75, 0.0, 36.0 - abs(i)), 1.0, sphere_mtrl2)));
 
-	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 0.0, 0.0), Vector3f(1.0, 1.0, 1.0), 0.1, 0.7, 2000, 100));
+	std::tr1::shared_ptr<Material> sphere_mtrl3(new BlinnPhong(Vector3f(1.0, 1.0, 1.0), Vector3f(1.0, 1.0, 1.0), 0.0, 1.0, 2000, 100));
 
 	objects->push_back(std::tr1::shared_ptr<Object> (new Sphere(Vector3f(0.0, -7.0, 15.0), 3.0, sphere_mtrl3)));
 
@@ -82,7 +82,8 @@ flaXx::Scene::Scene() :
 
 /*flaXx::Scene(std::string filename)
 {
-	// Parse XML file to read scene
+	// TODO: Parse XML file to read scene
+	// Implementation is started in util/xmlParser.h/.cpp
 	
 
 	}*/
