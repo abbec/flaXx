@@ -1,11 +1,9 @@
 This folder contains all the source code. 
 
-To be able to bild the source code:
+To be able to build the source code:
 
 * cmake
-
 * libsdl development packages
-
 * libpng development packages
 
 are needed.

@@ -33,11 +33,11 @@ tests/xml_test.cpp
 util/xmlParser.cpp
 scene/camera.cpp)
 
-add_executable(tests/i_test ${INTER_TEST_SRC})
+add_executable(i_test ${INTER_TEST_SRC})
 
-add_executable(tests/random_test ${RANDOM_TEST_SRC})
+add_executable(random_test ${RANDOM_TEST_SRC})
 
-add_executable(tests/xml_test ${XML_TEST_SRC})
+add_executable(xml_test ${XML_TEST_SRC})
 
 # Skapa exekerbar fil
 add_executable(flaXx ${FLAXX_SRC})
