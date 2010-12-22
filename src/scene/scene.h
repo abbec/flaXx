@@ -19,7 +19,11 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 #include <list>
 #include <vector>
 
@@ -33,6 +37,10 @@
 
 namespace flaXx
 {
+
+// Typedefs for the light and object lists
+typedef std::vector< std::tr1::shared_ptr<Light> > lightList;
+typedef std::list< std::tr1::shared_ptr<Object> > objectList;
 
 /** Class to represent a
  * scene. */
@@ -68,8 +76,8 @@ class Scene
   private:
 
 	Camera camera;
-	std::tr1::shared_ptr< std::vector< std::tr1::shared_ptr<Light> > > lights;
-	std::tr1::shared_ptr< std::list< std::tr1::shared_ptr<Object> > > objects;
+	std::tr1::shared_ptr< lightList > lights;
+	std::tr1::shared_ptr< objectList > objects;
 
 };
 

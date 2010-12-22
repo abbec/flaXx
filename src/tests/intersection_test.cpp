@@ -7,7 +7,11 @@
 
 #include "render/render.h"
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 #include "object/material.h"
 
 using namespace flaXx;
@@ -29,7 +33,7 @@ Vector3f refract(const Vector3f &normal, const Vector3f &psi, const double eta)
 
 	double beta = 0.0;
 
-	beta = sqrtf(cost2);		
+	beta = sqrtf(float(cost2));		
 
 	return ((eta*psiN) + (eta*cosi-beta)*Nx).normalize();
 }

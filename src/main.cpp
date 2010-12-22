@@ -16,7 +16,12 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <tr1/memory>
+
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "app/flaXxMain.h"
 

@@ -52,4 +52,6 @@ int FlaxxMain::main(int argc, char *argv[])
     }
     else // If no or wrong arguments
         cmdParser.printHelp();
+
+	return 0;
 }

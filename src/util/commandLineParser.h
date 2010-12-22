@@ -19,7 +19,11 @@
 #ifndef COMMAND_LINE_PARSER_H
 #define COMMAND_LINE_PARSER_H
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "util/options.h"
 

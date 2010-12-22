@@ -19,7 +19,11 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 #include "SDL.h"
 
 #include "util/options.h"

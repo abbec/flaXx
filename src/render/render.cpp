@@ -73,7 +73,7 @@ void Render::render()
 	Vector3f pixelCoord, pixelWidth;
 
 	unsigned int nRays = options->getNoViewingRays();
-	unsigned int nRaysSqrt = ceil(sqrt(nRays));
+	unsigned int nRaysSqrt = unsigned int(ceil(sqrt(float(nRays))));
 	unsigned int tileNum, xStart, xEnd, yStart, yEnd;
 	nRays = nRaysSqrt*nRaysSqrt;
 
@@ -88,9 +88,9 @@ void Render::render()
 		xStart = image->getTileX(tileNum); xEnd = xStart + image->getTileWidth(tileNum);
 		yStart = image->getTileY(tileNum); yEnd = yStart + image->getTileHeight(tileNum);
 		
-		for (int y = yStart; y<yEnd; ++y)
+		for (unsigned int y = yStart; y<yEnd; ++y)
 		{
-			for (int x = xStart; x<xEnd; ++x)
+			for (unsigned int x = xStart; x<xEnd; ++x)
 			{
 				// Lock screen before drawing pixel
 				if(SDL_MUSTLOCK(screen))
@@ -108,9 +108,9 @@ void Render::render()
 				pixWidth = pixelWidth.getX()/double(nRaysSqrt);
 				pixHeight = pixelWidth.getY()/double(nRaysSqrt);
 
-				for (int i = 0; i < nRaysSqrt; i++)
+				for (unsigned int i = 0; i < nRaysSqrt; i++)
 				{
-					for (int j = 0; j < nRaysSqrt; j++)
+					for (unsigned int j = 0; j < nRaysSqrt; j++)
 					{
 						double jitterx = double(rand())/(double(RAND_MAX));
 						double jittery = double(rand())/(double(RAND_MAX));
@@ -128,8 +128,8 @@ void Render::render()
 				radiance = (radiance / nRays).colorNormalize();
 
 				// Map Colors to a 32-bit word
-				finalColor = SDL_MapRGB( screen->format, floor(radiance.getX()*255.0),
-										 floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0));
+				finalColor = SDL_MapRGB( screen->format, Uint8(floor(radiance.getX()*255.0)),
+										 Uint8(floor(radiance.getY()*255.0)), Uint8(floor(radiance.getZ()*255.0)));
 
 				// Draw pixel on screen
 				pixmem32 = (Uint32*) (screen->pixels) + (y*screen->pitch)/4 + x;
@@ -137,8 +137,8 @@ void Render::render()
 
 
 				// Draw pixel in the back-buffer
-				finalColor = SDL_MapRGBA( buffer->format, floor(radiance.getX()*255.0),
-										  floor(radiance.getY()*255.0), floor(radiance.getZ()*255.0), SDL_ALPHA_OPAQUE );
+				finalColor = SDL_MapRGBA( buffer->format, Uint8(floor(radiance.getX()*255.0)),
+										  Uint8(floor(radiance.getY()*255.0)), Uint8(floor(radiance.getZ()*255.0)), SDL_ALPHA_OPAQUE );
 
 				pixmem32 = (Uint32*) (buffer->pixels) + (y*buffer->pitch)/4 + x;
 				*pixmem32 = finalColor;
@@ -206,7 +206,9 @@ void Render::saveToFile()
 		int i, colortype;
 		png_infop info_ptr;
 
-		const char* filename = (options->getOutFileName()+".png").c_str();
+		// MSVC requires to declare the string first
+		std::string s(options->getOutFileName()+".png");
+		const char* filename = s.c_str();
 
 		// (Re)lock the backbuffer
 		if(SDL_MUSTLOCK(buffer))
@@ -222,7 +224,8 @@ void Render::saveToFile()
 		fp = fopen(filename, "wb");
 		if (fp == NULL)
 		{
-			printf("fopen error");
+			printf("fopen error, file not saved!");
+			return;
 		}
 
 		/* Initializie png structures and callbacks */
@@ -371,8 +374,6 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 	Vector3f y, psi, mpsi;
 
-	double thetaN, phi;
-
 	MonteCarlo mc;
 
 	// Use a local variable for the current object so
@@ -387,7 +388,7 @@ Vector3f Render::indirectIllumination(Vector3f &x, Vector3f &theta)
 
 	// Generate N paths
 	// TODO: Limit the recursion depth?
-	for (int i = 0; i < nRays; i++)
+	for (unsigned int i = 0; i < nRays; i++)
 	{			
 		
 		alpha = absorption();
@@ -538,7 +539,7 @@ Vector3f Render::refract(const Vector3f &normal, const Vector3f &psi, const doub
 
 	double beta = 0.0;
 
-	beta = sqrtf(cost2);		
+	beta = double(sqrtf(cost2));		
 
 	return ((eta*psiN) + (eta*cosi-beta)*Nx).normalize();
 }
@@ -591,7 +592,6 @@ SDL_Surface *Render::createBufferSurface()
 	// Create a 32-bit surface with the bytes of each pixel in R,G,B,A order,
 	// for storing the image
     Uint32 rmask, gmask, bmask, amask;
-	SDL_Surface *ret;
 
     /* SDL interprets each pixel as a 32-bit number, so the masks must depend
        on the endianness (byte order) of the machine */

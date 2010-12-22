@@ -21,7 +21,11 @@
 
 #include <list>
 #include <vector>
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "scene/light.h"
 #include "object/object.h"

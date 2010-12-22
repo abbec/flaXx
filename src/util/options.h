@@ -19,7 +19,11 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 #include <string>
 
 namespace flaXx
@@ -29,7 +33,7 @@ class Options
 {
 
   public:
-    Options() : width(640), height(480), noShadowRays(4), noHemisphereRays(1), noViewingRays(1000) {}
+    Options() : width(640), height(480), noShadowRays(4), noHemisphereRays(1), noViewingRays(10) {}
 
     void setWidth(int w) { width = w; }
     int getWidth() { return width; }

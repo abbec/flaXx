@@ -22,7 +22,7 @@
 using namespace flaXx;
 
 
-Vector3f Light::intersect(const Ray &ray)
+/*Vector3f Light::intersect(const Ray &ray)
 {
 	// Do for both triangles in plane
 	Vector3f v1 = Vector3f(position.getX()-width/2.0, position.getY(), position.getZ()-height/2.0);
@@ -95,4 +95,4 @@ Vector3f Light::intersect(const Ray &ray)
 	
 	return Vector3f(0.0, 0.0, 0.0);
 
-}
+}*/

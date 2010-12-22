@@ -19,7 +19,11 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include <tr1/memory>
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "object/object.h"
 #include "render/ray.h"

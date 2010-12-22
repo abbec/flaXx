@@ -81,5 +81,7 @@ bool XMLParser::parse()
 
 	// Clean up the XML tree
 	doc.clear();
+
+	return true;
 }
 

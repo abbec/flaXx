@@ -19,7 +19,13 @@
 #ifndef FLAXX_MAIN_H
 #define FLAXX_MAIN_H
 
-#include <tr1/memory>
+// The shared pointer is in another dir
+// under msvc
+#ifdef WIN32
+	#include <memory>
+#else
+	#include <tr1/memory>
+#endif
 
 #include "util/commandLineParser.h"
 #include "render/render.h"
