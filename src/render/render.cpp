@@ -73,7 +73,7 @@ void Render::render()
 	Vector3f pixelCoord, pixelWidth;
 
 	unsigned int nRays = options->getNoViewingRays();
-	unsigned int nRaysSqrt = unsigned int(ceil(sqrt(float(nRays))));
+	unsigned int nRaysSqrt = (unsigned int)ceil(sqrt(float(nRays)));
 	unsigned int tileNum, xStart, xEnd, yStart, yEnd;
 	nRays = nRaysSqrt*nRaysSqrt;
 
