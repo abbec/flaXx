@@ -21,6 +21,7 @@
 
 using namespace flaXx;
 
+// TODO: Implement this correctly
 Vector3f CookTorrance::brdf(const Vector3f &point, const Vector3f &dir, const Vector3f &normal, const Vector3f &lightDir)
 {
 	double m2 = roughness * roughness;
