@@ -108,11 +108,23 @@ add_executable(xml_test ${XML_TEST_SRC})
 add_executable(flaXx ${FLAXX_SRC})
 
 # Link SDL
-if (MSVC)
-  target_link_libraries(flaXx SDLMain SDL png)
-elseif(MINGW)
-  target_link_libraries(flaXx mingw32 SDL SDLMain png)
-endif(MSVC)
+if(WIN32)
+  if (MSVC)
+    target_link_libraries(flaXx SDLMain SDL png)
+  elseif(MINGW)
+    target_link_libraries(flaXx mingw32 SDL SDLMain png)
+  endif(MSVC)
+elseif(UNIX)
+  find_package(SDL)
+
+  if(SDL_FOUND)
+    include_directories(${SDL_INCLUDE_DIR})
+    target_link_libraries(flaXx ${SDL_LIBRARY} png)
+  else()
+    message(FATAL_ERROR "SDL dev packages is needed on linux. Please make sure they are installed.")
+  endif()
+
+endif()
 
 # Add x64 to executable
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)

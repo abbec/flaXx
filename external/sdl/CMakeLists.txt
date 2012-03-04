@@ -75,7 +75,7 @@ endif(WIN32)
 
 add_library(SDL STATIC ${SDL_SRC})
 
-if(WIN32)
+
 
   
   if (MSVC)

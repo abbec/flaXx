@@ -4,9 +4,9 @@ project (flaXx)
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # Output directories
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Detect 32/64 bits
 set(X64_BUILD FALSE)
@@ -17,9 +17,11 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Include directories
-include_directories("external/sdl/include", 
-"external/zlib/src", 
-"external/libpng/src")
+if(WIN32)
+include_directories("external/sdl/include")
+endif()
+
+include_directories("external/zlib/src" "external/libpng/src")
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
