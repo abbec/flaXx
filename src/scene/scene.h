@@ -19,7 +19,7 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	#include <memory>
 #else
 	#include <tr1/memory>
@@ -71,7 +71,7 @@ class Scene
 	Vector3f getCameraPosition() { return camera.getPosition(); }
 
 	std::tr1::shared_ptr<Light> getLight(unsigned int lightNum) { return lights->at(lightNum);}
-	int getNumLights() { return lights->size(); }
+	size_t getNumLights() { return lights->size(); }
 
   private:
 

@@ -119,7 +119,7 @@ void Render::render()
 						double pixelY = pixelCoord.getY() + i*pixHeight*jittery;
 
 						// Shoot a ray through the pixel and trace
-						// it through the scene.*/
+						// it through the scene.
 						Ray r(scene.getCameraPosition(), Vector3f(pixelX, pixelY, pixelCoord.getZ()).normalize());
 						radiance += traceRay(r);
 					}
@@ -337,7 +337,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	for (int i = 0; i < nd; i++)
 	{
 		// Sample a lightsource uniformly
-		randLight = floor(double(rand())/(double(RAND_MAX)+0.99)*scene.getNumLights());
+		randLight = (int) floor(double(rand())/(double(RAND_MAX)+0.99)*scene.getNumLights());
 		light = scene.getLight(randLight);
 
 		lightArea = light->getWidth() * light->getHeight();
@@ -361,7 +361,7 @@ Vector3f Render::directIllumination(Vector3f &x, Vector3f &theta)
 	}
 
 	// Normalize with the number of shadowrays
-	estimatedRadiance = scene.getNumLights()*estimatedRadiance/double(nd);
+	estimatedRadiance = (double) scene.getNumLights()*estimatedRadiance/double(nd);
 
 	return estimatedRadiance;
 }
@@ -539,7 +539,7 @@ Vector3f Render::refract(const Vector3f &normal, const Vector3f &psi, const doub
 
 	double beta = 0.0;
 
-	beta = double(sqrtf(cost2));		
+	beta = double(sqrtf((float) cost2));		
 
 	return ((eta*psiN) + (eta*cosi-beta)*Nx).normalize();
 }

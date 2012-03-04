@@ -1,28 +1,40 @@
 cmake_minimum_required (VERSION 2.8)
 project (flaXx)
 
-set (CMAKE_INCLUDE_CURRENT_DIR TRUE)
+set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
-FIND_PACKAGE(SDL) 
-     
-IF(SDL_FOUND) 
-  INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-ELSE(SDL_FOUND) 
-  MESSAGE(STATUS "Hittade inte SDL.")  
-ENDIF(SDL_FOUND) 
+# Output directories
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
+# Detect 32/64 bits
+set(X64_BUILD FALSE)
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(X64_BUILD TRUE)
+endif()
 
-FIND_PACKAGE(PNG) 
-     
-IF(PNG_FOUND) 
-  INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
-ELSE(PNG_FOUND) 
-  MESSAGE(STATUS "Hittade inte PNG.")  
-ENDIF(PNG_FOUND) 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Include directories
+include_directories("external/sdl/include", 
+"external/zlib/src", 
+"external/libpng/src")
+
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # The version number.
 set (FLAXX_VERSION_MAJOR 0)
 set (FLAXX_VERSION_MINOR 1)
 
-add_subdirectory (src)
+add_subdirectory(external)
+
+# Treat warnings as errors (not for external projects)
+if(MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+elseif(CMAKE_COMPILER_IS_GNUCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+endif(MSVC)
+
+add_subdirectory(src)

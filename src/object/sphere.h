@@ -19,7 +19,7 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#ifdef WIN32
+#ifdef _MSC_VER
 	#include <memory>
 #else
 	#include <tr1/memory>

@@ -111,7 +111,7 @@ unsigned int MonteCarlo::random(unsigned int n)
 
 double MonteCarlo::random()
 {
-	int r = (float)random(0xffffffff);
+	int r = (int)random(0xffffffff);
 	float divisor = (float)0xffffffff;
 	return (r / divisor) + 0.5f;
 }

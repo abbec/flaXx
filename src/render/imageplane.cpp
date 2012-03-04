@@ -41,7 +41,7 @@ unsigned int flaXx::ImagePlane::getTile()
 {
 	// Concentrate on the middle of the image first.
 	// It is probably most important :)
-	unsigned int middle = floor(tiles.size()*0.5);
+	unsigned int middle = (unsigned int) floor(tiles.size()*0.5);
 	unsigned int random = 0;
 	if (tiles.size() > 2)
 		random = (double(rand())/double(RAND_MAX)) > 0.5 ? 1 : -1;
@@ -52,18 +52,18 @@ unsigned int flaXx::ImagePlane::getTile()
 void flaXx::ImagePlane::createTiles()
 {
 	double ratio = double(height)/double(width);
-	unsigned int w = ceil(width/10.0);
-	unsigned int nTilesY = ceil(10.0*ratio);
-	unsigned int h = ceil(height/(10.0*ratio));
+	unsigned int w = (unsigned int) ceil(width/10.0);
+	unsigned int nTilesY = (unsigned int) ceil(10.0*ratio);
+	unsigned int h = (unsigned int) ceil(height/(10.0*ratio));
 
 	nTiles = 10*nTilesY;
 
 	tiles.reserve(nTiles);
 
 	unsigned int tempW = 0, tempH = 0;
-	for (int x = 0; x < 10; x++)
+	for (unsigned int x = 0; x < 10; x++)
 	{
-		for (int y = 0; y < nTilesY; y++)
+		for (unsigned int y = 0; y < nTilesY; y++)
 		{
 			tempW = w; tempH = h;
 			

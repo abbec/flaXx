@@ -5,8 +5,6 @@
 #include "math/vector3f.h"
 #include "render/ray.h"
 
-#include "render/render.h"
-
 #ifdef WIN32
 	#include <memory>
 #else
@@ -15,7 +13,6 @@
 #include "object/material.h"
 
 using namespace flaXx;
-
 
 Vector3f refract(const Vector3f &normal, const Vector3f &psi, const double eta)
 {

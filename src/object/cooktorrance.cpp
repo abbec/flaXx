@@ -31,7 +31,7 @@ Vector3f CookTorrance::brdf(const Vector3f &point, const Vector3f &dir, const Ve
 	Vector3f thetaN = dir.normalize();
 	Vector3f Hn = (Ln + thetaN).normalize();
 
-	float t = Hn*Nn; float t2 = t*t;
+	float t = (float) (Hn*Nn); float t2 = t*t;
 
 	double x = -(t2-1)/(t2*m2);
 
