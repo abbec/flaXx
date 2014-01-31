@@ -19,6 +19,6 @@ notifications:
   email:
     - albert@acervin.com
   irc:
-    secure: "gaui+kOHZRZs1Nf36nau2uRZWAVjeBFLvi6hEt9ni4F8SCAS9Lrhf3gEC6xo6IXoecy9Vv/GP2wu6JxMtWl1BjoBmg4oRsd0tOMg9NtmEhozTkk5PlCEs8+RhyQofXUNXNTedmOWShiypbevX7irKAAMsFWxUcPRBxyA8CBUDCE="
-    channel_key:
-      secure: "fV7hM38m6uGZJ6clyc/VxQ8RwayGpbtjivyVrirT5nkWywzDWcRtGCOYOQOAzwo8dv2zJdGXbowKQtglmplavEebykjy0rCduXc/6LAYv+Ry6Q0qRTTkCAXOiGnlZ7p1nC+aqCngwY2MSpdNUGRlthy+s5u/AYs2LSoVGB/FUvc="
+    channels:
+      - "irc.freenode.net##ragingmoon"
+    channel_key: 'sune'
