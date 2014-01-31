@@ -18,4 +18,5 @@ script: make -j 4
 notifications:
   email:
     - albert@acervin.com
-  irc: "chat.freenode.net##ragingmoon"
+  irc:
+    secure: "cw7F/yFI5YoGk+dzw0ykHe0t51BYvijUkHy3Dq890rmJT4p9f8zGJ2Rtq/+E/fUQvNpo9CH1vDJpJgRO1YGsWFYfJpNL4mzmWUFnNqSydMFweiihtwMX/UfQ2N+Od9wpIuYfABq9SKbPo5EXSAlyyr9rsWcAgV2qCa/Ffd4FqAk="
