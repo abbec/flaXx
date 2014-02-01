@@ -16,6 +16,6 @@ notifications:
   - albert@acervin.com
   irc:
     channels:
-      - "irc.freenode.net##ragingmoon"
+      - secure:  "JY+A58CKACTSVd6jaXHWeHoBzzJXdx5cVL3jJT8p+0msk3Te9XNe259LDwZdz8jAGAoqzIa3gU+NBhhpMt5j5I23Uh1T06ZNclOH0CiRgGGHtRgzCqgdzug68xGMMj7TAzd3gK13djPv2x/fWwMWGf5R7aToPs2eMp9sZ1vm5UM="
     channel_key: 'sune'
 
