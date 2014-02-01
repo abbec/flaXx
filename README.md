@@ -1,4 +1,7 @@
-flaXx is a Monte Carlo Ray Tracer.
+[![Build Status](https://travis-ci.org/abbec/flaXx.png?branch=master)](https://travis-ci.org/abbec/flaXx)
+
+# Intro
+flaXx is a Monte Carlo Raytracer.
 
 # Building
 To build the project you need CMake.
