@@ -18,4 +18,4 @@ notifications:
     channels:
       - "irc.freenode.net##ragingmoon"
     channel_key:
-      secure: ohMwnoHXPm/PZ7K7GwtTT1DMkvwU+BnBKSzlatqIcpUWXH9mL6/56TtZeigdarshblFdPDpXoM6ZPFKXJ1AAIRAFrT7+dJVuqtTScPyWLqur7iqCRE6liqUVtI2JtHm3r9YDSU1IK3apmGK+BSOSFYwP5UgchCznAG5vfIsxbxE=
+      secure: "ohMwnoHXPm/PZ7K7GwtTT1DMkvwU+BnBKSzlatqIcpUWXH9mL6/56TtZeigdarshblFdPDpXoM6ZPFKXJ1AAIRAFrT7+dJVuqtTScPyWLqur7iqCRE6liqUVtI2JtHm3r9YDSU1IK3apmGK+BSOSFYwP5UgchCznAG5vfIsxbxE="
