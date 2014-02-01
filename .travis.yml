@@ -16,6 +16,6 @@ notifications:
   - albert@acervin.com
   irc:
     channels:
-      - secure: "o208yViAKSl6Q2aYiwvD4F3xUkkq6WdPiOCwTM34ZmRo9QA0CFl9Oy+X9zloYjfcVOc4Gkh8DKO0tKY2iw3JmdC/Ocs9sJTZUPEzmKDvCvHGSj7U0fhjZvNRkPwYGSIdn6IGEyHrIXfFniK1nG6t3WOhDaGKbJQN15q0G2mLG04="
+      secure: jueHrKAWSTmLJ95hza69lACvJ3at7UnXXydS3qj7+Zn39vKzc/FVriff9Sj5Jqe1L3JYzzQLYSOkBjap2veYI+YZjwejrelhQsM/jznGr0kgTsBTPgXRyb1qFppFyTtituwVczEzqMe8bXouByVnAhtAIvsHSXU+jWihglYOsAw=
     channel_key:
-      secure: "osfV+EwGnL55R2CjWlBKdaEjNyUSFDNEx1ZCARjLK07fkcit123r/g9oZyO4mt1gGS/B+6Hm9mSOjMd1EVGJD+SQGQIYDLVC/9Nom3956uyroOGH7fH9PejrpmaizAzPvz4jHFd31k88r4QvrEqbyZHYgaPFZKvM1zBRf8FGC9Q="
+      secure: ohMwnoHXPm/PZ7K7GwtTT1DMkvwU+BnBKSzlatqIcpUWXH9mL6/56TtZeigdarshblFdPDpXoM6ZPFKXJ1AAIRAFrT7+dJVuqtTScPyWLqur7iqCRE6liqUVtI2JtHm3r9YDSU1IK3apmGK+BSOSFYwP5UgchCznAG5vfIsxbxE=
