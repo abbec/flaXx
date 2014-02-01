@@ -1,18 +1,18 @@
 language: cpp
 compiler:
   - gcc
-  
+
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install libsdl1.2-dev
   - sudo apt-get -qq install libsdl-image1.2-dev
   - sudo apt-get -qq install libsdl-gfx1.2-dev
-  
+
 before_script:
   - mkdir build
   - cd build
   - cmake ../
-  
+
 script: make -j 4
 
 notifications:
@@ -20,5 +20,6 @@ notifications:
     - albert@acervin.com
   irc:
     channels:
-      - "irc.freenode.net##ragingmoon"
-    channel_key: 'sune'
+      - secure: "IsHrHR/a/Ph0cIm2EqxKAxXJ1MDruHCy1CdxdHzor1m13s0DFNrQbpBGNslXu2SqJKoX8S9/7YOlrNgr0mQRGJpmOwtuvXV0256//yGut0qQWzU8RLCWBKvNOUh3QHL2CnIx81OeVnK2U2hgAPiV/YAwYSIRXTUoNPogF99Z+yA="
+    channel_key:
+      secure: "VItiJP6LHeo8aZwCkSNWN1tiw1d0lH/KyPFdQoj21pQpmUh+2gYfoNpPMn2zmmIp4GkP9qN5YRDBnzns6WksPCXnrxIpG19m1FoKZVLZ87yKRlan5PFRw3SNruva7C4LfiNRtP8S5YuArWU3PO09Tn9X7Lr9QjWr7J9eA4FLHeI="secure: "VItiJP6LHeo8aZwCkSNWN1tiw1d0lH/KyPFdQoj21pQpmUh+2gYfoNpPMn2zmmIp4GkP9qN5YRDBnzns6WksPCXnrxIpG19m1FoKZVLZ87yKRlan5PFRw3SNruva7C4LfiNRtP8S5YuArWU3PO09Tn9X7Lr9QjWr7J9eA4FLHeI="
